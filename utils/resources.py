@@ -1,0 +1,3 @@
+REQUEST_ID_FIELD = 'request_id'
+RESPONSE_STATUS_FIELD = 'status'
+RESPONSE_ERROR_FIELD = 'message'
