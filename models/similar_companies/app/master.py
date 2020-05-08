@@ -1,14 +1,14 @@
-from models.similar_companies import SimilarCompanies
 from flask import Flask
+from rq import Queue
+from redis import Redis
 import schedule
 import time, datetime
-import pandas as pd
-import pickle
 
 app = Flask(__name__)
 app.logger.setLevel("DEBUG")
 
-model = SimilarCompanies(app)
+redis_conn = Redis(host='redis')
+queue = Queue(connection=redis_conn)
 
 from models.similar_companies.app import master_routes
 

@@ -4,7 +4,7 @@ from models.similar_companies import SimilarCompanies
 app = Flask(__name__)
 app.logger.setLevel("DEBUG")
 
-model = SimilarCompanies(app)
+model = SimilarCompanies()
 
 from models.similar_companies.app import server_routes
 
