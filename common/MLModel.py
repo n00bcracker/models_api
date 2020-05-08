@@ -6,9 +6,9 @@ import pickle
 import traceback
 
 class MLModel(object):
-    def __init__(self, app):
-        self.app = app
-
+    def __init__(self):
+        # self.app = app
+        #TODO Сделать логирование
         self.sql_auth_data = {
                                 'login' : ORACLE_USERNAME,
                                 'password' : ORACLE_PASSWORD,
@@ -31,8 +31,9 @@ class MLModel(object):
             dataframe = pd.read_sql_table(table_name, connection, schema=schema)
             connection.close()
         except Exception:
-            errors = traceback.format_exc()
-            self.app.logger.error(f"Во время загрузки SQL-таблицы произошла ошибка: \n{errors}")
+            error = traceback.format_exc()
+            print(f"Во время загрузки SQL-таблицы произошла ошибка: \n{error}")
+            # self.app.logger.error(f"Во время загрузки SQL-таблицы произошла ошибка: \n{errors}")
             return None
         else:
             return dataframe
@@ -47,8 +48,9 @@ class MLModel(object):
             dataframe = pd.read_sql_query(sql_query, conn, params=params)
             conn.close()
         except Exception:
-            errors = traceback.format_exc()
-            self.app.logger.error(f"Во время исполнения SQL-запроса произошла ошибка: \n{errors}")
+            error = traceback.format_exc()
+            print(f"Во время исполнения SQL-запроса произошла ошибка: \n{error}")
+            # self.app.logger.error(f"Во время исполнения SQL-запроса произошла ошибка: \n{errors}")
             return None
         else:
             return dataframe
@@ -57,12 +59,13 @@ class MLModel(object):
         try:
             file = joblib.load(filename)
         except FileNotFoundError:
-            errors = traceback.format_exc()
-            self.app.logger.error(f'Отсутствует файл "{filename}".\n{errors}\n')
+            error = traceback.format_exc()
+            print(f'Отсутствует файл "{filename}".\n{error}\n')
+            # self.app.logger.error(f'Отсутствует файл "{filename}".\n{errors}\n')
             return None
         except Exception:
-            errors = traceback.format_exc()
-            self.app.logger.error(errors)
+            error = traceback.format_exc()
+            # self.app.logger.error(errors)
             raise
         else:
             return file
@@ -71,20 +74,21 @@ class MLModel(object):
         try:
             joblib.dump(object, filename, compress=5, protocol=pickle.DEFAULT_PROTOCOL)
         except Exception:
-            errors = traceback.format_exc()
-            self.app.logger.error(errors)
+            error = traceback.format_exc()
+            # self.app.logger.error(errors)
             raise
 
     def load_pickle_table(self, filename):
         try:
             df = pd.read_pickle(filename)
         except FileNotFoundError:
-            errors = traceback.format_exc()
-            self.app.logger.error(f'Отсутствует файл "{filename}".\n{errors}\n')
+            error = traceback.format_exc()
+            print(f'Отсутствует файл "{filename}".\n{error}\n')
+            # self.app.logger.error(f'Отсутствует файл "{filename}".\n{errors}\n')
             return None
         except Exception:
-            errors = traceback.format_exc()
-            self.app.logger.error(errors)
+            error = traceback.format_exc()
+            # self.app.logger.error(errors)
             raise
         else:
             return df
@@ -93,6 +97,6 @@ class MLModel(object):
         try:
             df.to_pickle(filename, protocol=pickle.DEFAULT_PROTOCOL)
         except Exception:
-            errors = traceback.format_exc()
-            self.app.logger.error(errors)
+            error = traceback.format_exc()
+            # self.app.logger.error(errors)
             raise

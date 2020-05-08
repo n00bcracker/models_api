@@ -15,4 +15,4 @@ CONT_FEATURES_COLS = ['city_population', 'charter_capital', 'revenue_all', 'work
                       'post_office_longitude', 'si_coowner_egrul_cnt', ]
 ORDER_FEATURES_COLS = ['age', 'okved_cnt', 'cnt_comp_in_group', ]
 BIN_CATEG_COLS = []
-CATEG_FEATURES_COLS = ['okfs_code', 'city', ]
+CATEG_FEATURES_COLS = ['okfs_code', 'city', 'okved_code4']

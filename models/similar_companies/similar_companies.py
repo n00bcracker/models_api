@@ -17,8 +17,8 @@ from sklearn.neighbors import NearestNeighbors
 
 
 class SimilarCompanies(MLModel):
-    def __init__(self, app):
-        super().__init__(app)
+    def __init__(self):
+        super().__init__()
         self.full_market_tablename = FULL_MARKET_TABLE
         self.clients_tablename = CLIENTS_TABLE
 
@@ -40,8 +40,19 @@ class SimilarCompanies(MLModel):
         self.load_metadata()
 
     def fit(self):
+        res = dict()
+
         full_market = self.read_sql_table(self.full_market_tablename)
-        full_market = self.preprocess_table(full_market)
+        if full_market is None:
+            res[resources.RESPONSE_STATUS_FIELD] = 'Error'
+            res[resources.RESPONSE_ERROR_FIELD] = 'Ошибка выполнения SQL-запроса'
+            return res
+        elif full_market.shape[0] == 0:
+            res[resources.RESPONSE_STATUS_FIELD] = 'Error'
+            res[resources.RESPONSE_ERROR_FIELD] = 'Отсутствуют данные для обучения'
+            return res
+        else:
+            full_market = self.preprocess_table(full_market)
 
         # Считаем частотность значений для категориальных признаков и моду для последующей кодировки
         categ_feat_modes = dict()
@@ -94,7 +105,16 @@ class SimilarCompanies(MLModel):
 
         # Загружаем таблицу с клиентами
         clients = self.read_sql_table(self.clients_tablename)
-        clients = self.preprocess_table(clients)
+        if clients is None:
+            res[resources.RESPONSE_STATUS_FIELD] = 'Error'
+            res[resources.RESPONSE_ERROR_FIELD] = 'Ошибка выполнения SQL-запроса'
+            return res
+        elif clients.shape[0] == 0:
+            res[resources.RESPONSE_STATUS_FIELD] = 'Error'
+            res[resources.RESPONSE_ERROR_FIELD] = 'Отсутствуют данные для обучения'
+            return res
+        else:
+            clients = self.preprocess_table(clients)
 
         # Упорядочиваем столбцы датасета для дальнейших преобразований
         clients = clients.loc[:, cols_names]
@@ -104,7 +124,6 @@ class SimilarCompanies(MLModel):
 
         # Список переменных модели
         features_cols = CONT_FEATURES_COLS + ORDER_FEATURES_COLS + CATEG_FEATURES_COLS
-
 
         self.nnbrs_models = {}
         for okv_group in self.okv_groups:
@@ -120,6 +139,9 @@ class SimilarCompanies(MLModel):
 
         # Сохраняем обученные данные
         self.save_metadata()
+
+        res[resources.RESPONSE_STATUS_FIELD] = 'Ok'
+        return res
 
     def get_company_feats(self, company_id):
         sql_query = f"""
