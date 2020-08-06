@@ -1,4 +1,6 @@
 from config import ORACLE_USERNAME, ORACLE_PASSWORD, ORACLE_TNS
+from config import METAFILES_DIR
+import os
 import sqlalchemy as sa
 import pandas as pd
 import joblib
@@ -14,6 +16,9 @@ class MLModel(object):
                                 'password' : ORACLE_PASSWORD,
                                 'tns' : ORACLE_TNS
                             }
+
+        if not os.path.isdir(METAFILES_DIR):
+            os.mkdir(METAFILES_DIR)
 
     def predict(self, *args, **kwargs):
         pass
@@ -100,3 +105,17 @@ class MLModel(object):
             error = traceback.format_exc()
             # self.app.logger.error(errors)
             raise
+
+    def save_df_in_sql_table(self, df, table_name, schema=None):
+        conn_str = 'oracle+cx_oracle://' + self.sql_auth_data['login'] + ':' + self.sql_auth_data['password'] \
+                    + '@' + self.sql_auth_data['tns']
+        try:
+            oracle_db = sa.create_engine(conn_str, encoding='utf-8', max_identifier_length=128)
+
+            connection = oracle_db.connect()
+            df.to_sql(table_name, schema=schema, con=connection, if_exists='append', index=False, chunksize=500)
+            connection.close()
+        except Exception:
+            error = traceback.format_exc()
+            print(f"Во время сохранения SQL-таблицы произошла ошибка: \n{error}")
+            # self.app.logger.error(f"Во время сохранения SQL-таблицы произошла ошибка: \n{errors}")

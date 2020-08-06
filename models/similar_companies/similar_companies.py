@@ -1,7 +1,8 @@
 from common import MLModel
 from utils import check_inn
 from utils import resources
-import  models.similar_companies.cython_funcs as cython_funcs
+import models.similar_companies.cython_funcs as cython_funcs
+from models.similar_companies.config import SIMCOMP_METADIR
 from models.similar_companies.config import FULL_MARKET_TABLE, CLIENTS_TABLE
 from models.similar_companies.config import ID_COLS, CONT_FEATURES_COLS, ORDER_FEATURES_COLS, CATEG_FEATURES_COLS
 from models.similar_companies.config import IMPUTER_FILENAME, TRANSFORMER_FILENAME, NN_MODELS_FILENAME,\
@@ -37,7 +38,22 @@ class SimilarCompanies(MLModel):
             '65', '39'
         ]
 
+        if not os.path.isdir(SIMCOMP_METADIR):
+            os.mkdir(SIMCOMP_METADIR)
+
         self.load_metadata()
+
+    def preprocess_table(self, df):
+        df = df.drop(columns=['ddate', ]) # убираем столбец с датой
+
+        # Приводим числовые признаки к одному типу
+        df.loc[:, CONT_FEATURES_COLS] = df.loc[:, CONT_FEATURES_COLS].astype(float)
+        df.loc[:, ORDER_FEATURES_COLS] = df.loc[:, ORDER_FEATURES_COLS].astype(float)
+        # Преобразуем пропуски к одному виду
+        df.loc[:, CATEG_FEATURES_COLS] = df.loc[:, CATEG_FEATURES_COLS].fillna(np.nan)
+        df.loc[:, CATEG_FEATURES_COLS] = df.loc[:, CATEG_FEATURES_COLS] \
+                                            .convert_dtypes(convert_string=False)
+        return df
 
     def fit(self):
         res = dict()
@@ -214,18 +230,6 @@ class SimilarCompanies(MLModel):
 
         return res
 
-    def preprocess_table(self, df):
-        df = df.drop(columns=['ddate', ]) # убираем столбец с датой
-
-        # Приводим числовые признаки к одному типу
-        df.loc[:, CONT_FEATURES_COLS] = df.loc[:, CONT_FEATURES_COLS].astype(float)
-        df.loc[:, ORDER_FEATURES_COLS] = df.loc[:, ORDER_FEATURES_COLS].astype(float)
-        # Преобразуем пропуски к одному виду
-        df.loc[:, CATEG_FEATURES_COLS] = df.loc[:, CATEG_FEATURES_COLS].fillna(np.nan)
-        df.loc[:, CATEG_FEATURES_COLS] = df.loc[:, CATEG_FEATURES_COLS] \
-                                            .convert_dtypes(convert_string=False)
-        return df
-
     @staticmethod
     def freq_coding(df, value_cnt_dict):
         """
@@ -242,23 +246,23 @@ class SimilarCompanies(MLModel):
         new_suffix = '.new'
 
         fname, ext = os.path.splitext(TRANSFORMER_FILENAME)
-        TRANSFORMER_FILENAME_TMP = fname + new_suffix + ext
+        transformer_filename_tmp = fname + new_suffix + ext
         fname, ext = os.path.splitext(IMPUTER_FILENAME)
-        IMPUTER_FILENAME_TMP = fname + new_suffix + ext
+        imputer_filename_tmp = fname + new_suffix + ext
         fname, ext = os.path.splitext(NN_MODELS_FILENAME)
-        NN_MODELS_FILENAME_TMP = fname + new_suffix + ext
+        nn_models_filename_tmp = fname + new_suffix + ext
         fname, ext = os.path.splitext(CLIENTS_IDS_FILENAME)
-        CLIENTS_IDS_FILENAME_TMP = fname + new_suffix + ext
+        clients_ids_filename_tmp = fname + new_suffix + ext
 
-        self.save_object_in_joblib(self.column_imputer, TRANSFORMER_FILENAME_TMP)
-        self.save_object_in_joblib(self.column_tranformer, IMPUTER_FILENAME_TMP)
-        self.save_object_in_joblib(self.nnbrs_models, NN_MODELS_FILENAME_TMP)
-        self.save_df_in_pickle(self.clients_ids, CLIENTS_IDS_FILENAME_TMP)
+        self.save_object_in_joblib(self.column_imputer, transformer_filename_tmp)
+        self.save_object_in_joblib(self.column_tranformer, imputer_filename_tmp)
+        self.save_object_in_joblib(self.nnbrs_models, nn_models_filename_tmp)
+        self.save_df_in_pickle(self.clients_ids, clients_ids_filename_tmp)
 
-        os.rename(TRANSFORMER_FILENAME_TMP, TRANSFORMER_FILENAME)
-        os.rename(IMPUTER_FILENAME_TMP, IMPUTER_FILENAME)
-        os.rename(NN_MODELS_FILENAME_TMP, NN_MODELS_FILENAME)
-        os.rename(CLIENTS_IDS_FILENAME_TMP, CLIENTS_IDS_FILENAME)
+        os.rename(transformer_filename_tmp, TRANSFORMER_FILENAME)
+        os.rename(imputer_filename_tmp, IMPUTER_FILENAME)
+        os.rename(nn_models_filename_tmp, NN_MODELS_FILENAME)
+        os.rename(clients_ids_filename_tmp, CLIENTS_IDS_FILENAME)
 
     def load_metadata(self):
         self.column_imputer = self.load_joblib_file(IMPUTER_FILENAME)

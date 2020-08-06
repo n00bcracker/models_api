@@ -1,5 +1,4 @@
-from models.revenue_spark.app.server import app
-from models.revenue_spark.app.server import model
+from models.revenue_spark.app.server import app, model
 from utils import resources
 import traceback
 from flask import request, jsonify
@@ -24,7 +23,7 @@ def get_model_result():
         response.status_code = 200
         return response
     else:
-        resp_data.update(model.predict(inn, kpp=kpp))
+        resp_data.update(model.get_predict(inn, kpp=kpp))
         response = jsonify(resp_data)
         response.status_code = 200
         return response

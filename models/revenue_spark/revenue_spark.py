@@ -29,7 +29,7 @@ class RevenueSpark(MLModel):
         revenue_df = self.read_sql_query(sql_query, params=[inn, ])
         return revenue_df
 
-    def predict(self, inn, kpp=None):
+    def get_predict(self, inn, kpp=None):
         res = dict()
         res['inn'] = inn
         res['kpp'] = kpp
@@ -53,7 +53,7 @@ class RevenueSpark(MLModel):
                     else:
                         res[resources.RESPONSE_STATUS_FIELD] = 'Ok'
                         res['name_rus'] = revenue_df.short_name_rus[0]
-                        res[resources.RESPONSE_ERROR_FIELD] = revenue_df.segment[0]
+                        res['segment'] = revenue_df.segment[0]
 
             else:
                 res[resources.RESPONSE_STATUS_FIELD] = 'Ok'
