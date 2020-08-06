@@ -16,7 +16,6 @@ COPY requirements.txt requirements.txt
 RUN pip install -r requirements.txt; exit 0
 RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-COPY app app
 COPY common common
 COPY utils utils
 COPY models models
