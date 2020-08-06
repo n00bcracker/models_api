@@ -16,6 +16,7 @@ pbr==5.4.4
 psutil==5.6.7
 requests==2.23.0
 schedule==0.6.0
+xgboost==1.1.1
 SQLAlchemy==1.3.16
 sqlparse==0.3.0
 urllib3==1.25.8

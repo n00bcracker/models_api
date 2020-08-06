@@ -1,5 +1,5 @@
-from models.similar_companies.app.server import app, model, queue
-from models.similar_companies.worker_funcs import fit_task
+from models.entry_compliance.app.server import app, model, queue
+from models.entry_compliance.worker_funcs import fit_task, predict_all_task
 from utils import resources
 import traceback
 import os, signal
@@ -78,12 +78,62 @@ def model_fit():
             elif job_status == 'finished':
                 resp_data.update(job.result)
                 if resp_data[resources.RESPONSE_STATUS_FIELD] == 'Ok':
-                    requests.get('http://similar_companies:3320/reboot')
+                    requests.get('http://entry_compliance:3310/reboot')
 
             response = jsonify(resp_data)
             response.status_code = 200
             return response
 
+@app.route('/predict', methods=['GET', 'POST'])
+def model_predict():
+    resp_data = {
+        resources.RESPONSE_STATUS_FIELD: None,
+        resources.RESPONSE_ERROR_FIELD: None
+    }
+
+    if request.method == 'GET':
+        try:
+            job = queue.enqueue(predict_all_task, result_ttl=600)
+        except Exception:
+            error = traceback.format_exc()
+            resp_data[resources.RESPONSE_STATUS_FIELD] = 'Error'
+            resp_data[resources.RESPONSE_ERROR_FIELD] = error
+            app.logger.error(error)
+            response = jsonify(resp_data)
+            response.status_code = 200
+            return response
+        else:
+            resp_data[resources.RESPONSE_STATUS_FIELD] = 'Ok'
+            resp_data['job_id'] = job.id
+            response = jsonify(resp_data)
+            response.status_code = 200
+            return response
+    elif request.method == 'POST':
+        try:
+            req_json = request.get_json()
+            resp_data['job_id'] = req_json['job_id']
+        except Exception:
+            errors = traceback.format_exc()
+            resp_data[resources.RESPONSE_STATUS_FIELD] = 'Error'
+            resp_data[resources.RESPONSE_ERROR_FIELD] = errors
+            app.logger.error(errors)
+            response = jsonify(resp_data)
+            response.status_code = 200
+            return response
+        else:
+            job = queue.fetch_job(resp_data['job_id'])
+            job_status = job.get_status()
+            if job_status in ['queued', 'started', 'deferred']:
+                resp_data[resources.RESPONSE_STATUS_FIELD] = 'Executing'
+            elif job_status == 'failed':
+                resp_data[resources.RESPONSE_STATUS_FIELD] = 'Error'
+                resp_data[resources.RESPONSE_ERROR_FIELD] = job.exc_info
+            elif job_status == 'finished':
+                resp_data.update(job.result)
+
+            response = jsonify(resp_data)
+            response.status_code = 200
+            return response
 
 @app.route('/reboot', methods=['GET'])
 def reboot_gunicorn():

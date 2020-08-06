@@ -1,13 +1,17 @@
 import os
+from config import METAFILES_DIR
+
 # Названия таблиц
 FULL_MARKET_TABLE = 'si_nn_test'
 CLIENTS_TABLE = 'si_nn_train'
 
+SIMCOMP_METADIR = os.path.join(METAFILES_DIR, 'similar_companies')
+
 # Названия файлов с обученными преобразованиями и моделями
-IMPUTER_FILENAME = '/home/ml_model/models/similar_companies/meta/imputing.joblib.gz'
-TRANSFORMER_FILENAME = '/home/ml_model/models/similar_companies/meta/transforming.joblib.gz'
-NN_MODELS_FILENAME = '/home/ml_model/models/similar_companies/meta/knn_models.joblib.gz'
-CLIENTS_IDS_FILENAME = '/home/ml_model/models/similar_companies/meta/client_okved_idxs.pkl.gz'
+IMPUTER_FILENAME = os.path.join(SIMCOMP_METADIR, 'imputing.joblib.gz')
+TRANSFORMER_FILENAME = os.path.join(SIMCOMP_METADIR, 'transforming.joblib.gz')
+NN_MODELS_FILENAME = os.path.join(SIMCOMP_METADIR, 'knn_models.joblib.gz')
+CLIENTS_IDS_FILENAME = os.path.join(SIMCOMP_METADIR, 'client_okved_idxs.pkl.gz')
 
 # Названия использующихся стобцов таблицы по категориям
 ID_COLS = ['client_key', 'okved_code', ]
