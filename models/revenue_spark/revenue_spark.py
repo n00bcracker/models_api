@@ -6,8 +6,8 @@ import pandas as pd
 import traceback
 
 class RevenueSpark(MLModel):
-    def __init__(self, app):
-        super().__init__(app)
+    def __init__(self):
+        super().__init__()
 
         self.tablename = REVENUE_SPARK_TABLE
 

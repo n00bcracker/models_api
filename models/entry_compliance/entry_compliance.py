@@ -21,8 +21,8 @@ from xgboost.sklearn import XGBClassifier
 import traceback
 
 class EntryCompliance(MLModel):
-    def __init__(self, app):
-        super().__init__(app)
+    def __init__(self):
+        super().__init__()
         self.full_market_ie_tablename = FULL_MARKET_IE_TABLE
         self.full_market_comp_tablename = FULL_MARKET_COMP_TABLE
         self.blocked_ie_tablename = BLOCKED_IE_TABLE

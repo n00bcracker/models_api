@@ -8,7 +8,7 @@ app.logger.setLevel("DEBUG")
 
 redis_conn = Redis(host='redis')
 queue = Queue(connection=redis_conn)
-model = EntryCompliance(app)
+model = EntryCompliance()
 
 from models.entry_compliance.app import server_routes
 
