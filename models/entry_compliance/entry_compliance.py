@@ -37,7 +37,8 @@ class EntryCompliance(MLModel):
         self.load_metadata()
 
     def preprocess_ie_table(self, df):
-        df = df.drop(columns=['ddate', 'reg_data', 'okpo_code', 'okato_code', 'oktmo_code',]) # убираем ненужные столбцы
+        # убираем ненужные столбцы
+        df = df.drop(columns=['ddate', 'reg_data', 'okpo_code', 'okato_code', 'oktmo_code', 'current_flag',])
 
         # Преобразуем пропуски к одному виду
         df = df.fillna(np.nan)
@@ -45,7 +46,7 @@ class EntryCompliance(MLModel):
         return df
 
     def preprocess_comp_table(self, df):
-        df = df.drop(columns=['ddate', 'okpo_code', 'oktmo_code',]) # убираем ненужные столбцы
+        df = df.drop(columns=['ddate', 'okpo_code', 'oktmo_code', 'current_flag',]) # убираем ненужные столбцы
 
         # Преобразуем пропуски к одному виду
         df = df.fillna(np.nan)
@@ -59,7 +60,7 @@ class EntryCompliance(MLModel):
             tablename = self.pred_res_ie_tablename
 
         sql_query = f"""
-                        select`
+                        select
                             t.ddate,
                             t.inn,
                             t.kpp,
@@ -144,6 +145,7 @@ class EntryCompliance(MLModel):
         )
 
         self.ie_column_imputer_transformer.fit(full_market_ie)
+        del full_market_ie
 
         # Считываем таблицу с блокировками ИП для обучения
         training_ie = self.read_sql_table(self.blocked_ie_tablename)
@@ -171,6 +173,7 @@ class EntryCompliance(MLModel):
                                     reg_alpha=0, reg_lambda=1, scale_pos_weight=1, seed=None,
                                     silent=True, subsample=0.6)
         self.ie_compl_model.fit(x_train_ie, y_train_ie)
+        del training_ie
 
         # Считываем таблицу со всеми ООО, чтобы обучить преобразователь
         full_market_comp = self.read_sql_table(self.full_market_comp_tablename)
@@ -203,6 +206,7 @@ class EntryCompliance(MLModel):
         )
 
         self.comp_column_imputer_transformer.fit(full_market_comp)
+        del full_market_comp
 
         # Считываем таблицу с блокировками ООО для обучения
         training_comp = self.read_sql_table(self.blocked_comp_tablename)
@@ -231,6 +235,7 @@ class EntryCompliance(MLModel):
                                     reg_alpha=0, reg_lambda=1, scale_pos_weight=1, seed=None,
                                     silent=True, subsample=0.6)
         self.comp_compl_model.fit(x_train_comp, y_train_comp)
+        del training_comp
 
         # Сохраняем обученные данные
         self.save_metadata()
@@ -241,38 +246,47 @@ class EntryCompliance(MLModel):
     def predict(self):
         res = dict()
 
+        sql_query = """
+                        select *
+                                from {tablename} t
+                                    where 1=1
+                                    and t.current_flag = 1
+                    """
+
+
         # Предсказание блокировок для ИП
         if self.ie_column_imputer_transformer is None or self.ie_compl_model is None:
             res[resources.RESPONSE_STATUS_FIELD] = 'Error'
             res[resources.RESPONSE_ERROR_FIELD] = 'Модель не обучена, предсказания невозможны'
             return res
 
-        full_market_ie = self.read_sql_table(self.full_market_ie_tablename)
-        if full_market_ie is None:
+        full_active_ie = self.read_sql_query(sql_query.format(tablename = self.full_market_ie_tablename))
+        if full_active_ie is None:
             res[resources.RESPONSE_STATUS_FIELD] = 'Error'
             res[resources.RESPONSE_ERROR_FIELD] = 'Ошибка выполнения SQL-запроса'
             return res
-        elif full_market_ie.shape[0] == 0:
+        elif full_active_ie.shape[0] == 0:
             res[resources.RESPONSE_STATUS_FIELD] = 'Error'
             res[resources.RESPONSE_ERROR_FIELD] = 'Отсутствуют данные для предсказания'
             return res
         else:
-            full_market_ie = self.preprocess_ie_table(full_market_ie)
+            full_active_ie = self.preprocess_ie_table(full_active_ie)
 
-        all_cols = set(full_market_ie.columns)
+        all_cols = set(full_active_ie.columns)
         rest_cols = list(all_cols.difference(IE_CATEG_FEATURES_COLS))
 
         ie_cols_names = IE_CATEG_FEATURES_COLS + rest_cols
-        full_market_ie = full_market_ie.loc[:, ie_cols_names]
+        full_active_ie = full_active_ie.loc[:, ie_cols_names]
 
-        full_market_ie = pd.DataFrame(self.ie_column_imputer_transformer.transform(full_market_ie),
+        full_active_ie = pd.DataFrame(self.ie_column_imputer_transformer.transform(full_active_ie),
                                                                                                 columns=ie_cols_names)
-        ie_inns = full_market_ie.loc[:, 'inn']
-        x_pred_ie = full_market_ie.drop(columns=['inn', 'block_flag']).astype(float)
+        ie_inns = full_active_ie.loc[:, 'inn']
+        x_pred_ie = full_active_ie.drop(columns=['inn', 'block_flag']).astype(float)
 
         ie_pred_block = self.ie_compl_model.predict(x_pred_ie)
         ie_pred_prob = self.ie_compl_model.predict_proba(x_pred_ie)
 
+        del full_active_ie
         ie_pred_result = pd.DataFrame({'inn': ie_inns, 'prog_result': ie_pred_block, 'prog_prob': ie_pred_prob[:, 1]})
 
         value_day = datetime.date.today()
@@ -286,28 +300,28 @@ class EntryCompliance(MLModel):
             res[resources.RESPONSE_ERROR_FIELD] = 'Модель не обучена, предсказания невозможны'
             return res
 
-        full_market_comp = self.read_sql_table(self.full_market_comp_tablename)
-        if full_market_comp is None:
+        full_active_comp = self.read_sql_query(sql_query.format(tablename = self.full_market_comp_tablename))
+        if full_active_comp is None:
             res[resources.RESPONSE_STATUS_FIELD] = 'Error'
             res[resources.RESPONSE_ERROR_FIELD] = 'Ошибка выполнения SQL-запроса'
             return res
-        elif full_market_comp.shape[0] == 0:
+        elif full_active_comp.shape[0] == 0:
             res[resources.RESPONSE_STATUS_FIELD] = 'Error'
             res[resources.RESPONSE_ERROR_FIELD] = 'Отсутствуют данные для предсказания'
             return res
         else:
-            full_market_comp = self.preprocess_comp_table(full_market_comp)
+            full_active_comp = self.preprocess_comp_table(full_active_comp)
 
-        all_cols = set(full_market_comp.columns)
+        all_cols = set(full_active_comp.columns)
         rest_cols = list(all_cols.difference(COMP_CATEG_FEATURES_COLS))
 
         comp_cols_names = COMP_CATEG_FEATURES_COLS + rest_cols
-        full_market_comp = full_market_ie.loc[:, comp_cols_names]
+        full_active_comp = full_active_comp.loc[:, comp_cols_names]
 
-        full_market_comp = pd.DataFrame(self.comp_column_imputer_transformer.transform(full_market_comp),
+        full_active_comp = pd.DataFrame(self.comp_column_imputer_transformer.transform(full_active_comp),
                                             columns=ie_cols_names)
-        comp_clkey = full_market_comp.loc[:, ['client_key', ]]
-        x_pred_comp = full_market_comp.drop(columns=['client_key', 'block_flag']).astype(float)
+        comp_clkey = full_active_comp.loc[:, ['client_key', ]]
+        x_pred_comp = full_active_comp.drop(columns=['client_key', 'block_flag']).astype(float)
 
         comp_clkey['inn'] = comp_clkey.client_key.str[0:10]
         comp_clkey['kpp'] = comp_clkey.client_key.str[11:]
@@ -315,6 +329,7 @@ class EntryCompliance(MLModel):
         comp_pred_block = self.comp_compl_model.predict(x_pred_comp)
         comp_pred_prob = self.comp_compl_model.predict_proba(x_pred_comp)
 
+        del full_active_comp
         comp_pred_result = pd.DataFrame({'inn': comp_clkey.inn, 'kpp': comp_clkey.kpp,
                                                     'prog_result': comp_pred_block, 'prog_prob': comp_pred_prob[:, 1]})
         comp_pred_result['value_day'] = value_day
