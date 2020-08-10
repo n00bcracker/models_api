@@ -56,6 +56,7 @@ class MLModel(object):
             error = traceback.format_exc()
             print(f"Во время исполнения SQL-запроса произошла ошибка: \n{error}")
             # self.app.logger.error(f"Во время исполнения SQL-запроса произошла ошибка: \n{errors}")
+            raise
             return None
         else:
             return dataframe
