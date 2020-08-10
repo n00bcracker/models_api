@@ -42,6 +42,7 @@ class EntryCompliance(MLModel):
         # Преобразуем пропуски к одному виду
         df = df.fillna(np.nan)
         df.loc[:, IE_CATEG_FEATURES_COLS] = df.loc[:, IE_CATEG_FEATURES_COLS].convert_dtypes(convert_string=False)
+        return df
 
     def preprocess_comp_table(self, df):
         df = df.drop(columns=['ddate', 'okpo_code', 'oktmo_code',]) # убираем ненужные столбцы
@@ -49,7 +50,8 @@ class EntryCompliance(MLModel):
         # Преобразуем пропуски к одному виду
         df = df.fillna(np.nan)
         df.loc[:, COMP_CATEG_FEATURES_COLS] = df.loc[:, COMP_CATEG_FEATURES_COLS].convert_dtypes(convert_string=False)
-
+        return df
+    
     def get_block_predict(self, inn):
         if len(inn) == 10:
             tablename = self.pred_res_comp_tablename
@@ -202,7 +204,7 @@ class EntryCompliance(MLModel):
 
         self.comp_column_imputer_transformer.fit(full_market_comp)
 
-        # Считываем таблицу с блокировками ИП для обучения
+        # Считываем таблицу с блокировками ООО для обучения
         training_comp = self.read_sql_table(self.blocked_comp_tablename)
         if training_comp is None:
             res[resources.RESPONSE_STATUS_FIELD] = 'Error'
@@ -213,7 +215,7 @@ class EntryCompliance(MLModel):
             res[resources.RESPONSE_ERROR_FIELD] = 'Отсутствуют данные для обучения'
             return res
         else:
-            training_comp = self.preprocess_ie_table(training_comp)
+            training_comp = self.preprocess_comp_table(training_comp)
 
         training_comp = training_comp.loc[:, comp_cols_names]
         training_comp = pd.DataFrame(self.comp_column_imputer_transformer.transform(training_comp),
