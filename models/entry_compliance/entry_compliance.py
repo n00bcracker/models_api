@@ -38,7 +38,7 @@ class EntryCompliance(MLModel):
 
     def preprocess_ie_table(self, df):
         # убираем ненужные столбцы
-        df = df.drop(columns=['ddate', 'reg_data', 'okpo_code', 'okato_code', 'oktmo_code', 'current_flag',])
+        df = df.drop(columns=['ddate', 'reg_data', 'okpo_code', 'okato_code', 'oktmo_code',])
 
         # Преобразуем пропуски к одному виду
         df = df.fillna(np.nan)
@@ -46,7 +46,7 @@ class EntryCompliance(MLModel):
         return df
 
     def preprocess_comp_table(self, df):
-        df = df.drop(columns=['ddate', 'okpo_code', 'oktmo_code', 'current_flag',]) # убираем ненужные столбцы
+        df = df.drop(columns=['ddate', 'okpo_code', 'oktmo_code',]) # убираем ненужные столбцы
 
         # Преобразуем пропуски к одному виду
         df = df.fillna(np.nan)
@@ -127,6 +127,7 @@ class EntryCompliance(MLModel):
         else:
             full_market_ie = self.preprocess_ie_table(full_market_ie)
 
+        full_market_ie = full_market_ie.drop(columns=['current_flag',])
         all_cols = set(full_market_ie.columns)
         rest_cols = list(all_cols.difference(IE_CATEG_FEATURES_COLS))
 
@@ -188,6 +189,7 @@ class EntryCompliance(MLModel):
         else:
             full_market_comp = self.preprocess_comp_table(full_market_comp)
 
+        full_market_comp = full_market_comp.drop(columns=['current_flag',])
         all_cols = set(full_market_comp.columns)
         rest_cols = list(all_cols.difference(COMP_CATEG_FEATURES_COLS))
 
@@ -223,7 +225,7 @@ class EntryCompliance(MLModel):
 
         training_comp = training_comp.loc[:, comp_cols_names]
         training_comp = pd.DataFrame(self.comp_column_imputer_transformer.transform(training_comp),
-                                                                                                columns=ie_cols_names)
+                                                                                                columns=comp_cols_names)
 
         y_train_comp = training_comp.loc[:, 'block_flag']
         x_train_comp = training_comp.drop(columns=['client_key', 'block_flag']).astype(float)
@@ -272,6 +274,7 @@ class EntryCompliance(MLModel):
         else:
             full_active_ie = self.preprocess_ie_table(full_active_ie)
 
+        full_active_ie = full_active_ie.drop(columns=['current_flag',])
         all_cols = set(full_active_ie.columns)
         rest_cols = list(all_cols.difference(IE_CATEG_FEATURES_COLS))
 
@@ -312,6 +315,7 @@ class EntryCompliance(MLModel):
         else:
             full_active_comp = self.preprocess_comp_table(full_active_comp)
 
+        full_active_comp = full_active_comp.drop(columns=['current_flag',])
         all_cols = set(full_active_comp.columns)
         rest_cols = list(all_cols.difference(COMP_CATEG_FEATURES_COLS))
 

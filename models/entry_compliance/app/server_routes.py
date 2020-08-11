@@ -39,7 +39,7 @@ def model_fit():
                  }
     if request.method == 'GET':
         try:
-            job = queue.enqueue(fit_task, result_ttl=600, job_timeout='30m')
+            job = queue.enqueue(fit_task, result_ttl=600, job_timeout='45m')
         except Exception:
             error = traceback.format_exc()
             resp_data[resources.RESPONSE_STATUS_FIELD] = 'Error'
