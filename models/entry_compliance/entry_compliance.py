@@ -323,7 +323,7 @@ class EntryCompliance(MLModel):
         full_active_comp = full_active_comp.loc[:, comp_cols_names]
 
         full_active_comp = pd.DataFrame(self.comp_column_imputer_transformer.transform(full_active_comp),
-                                            columns=ie_cols_names)
+                                                                                            columns=comp_cols_names)
         comp_clkey = full_active_comp.loc[:, ['client_key', ]]
         x_pred_comp = full_active_comp.drop(columns=['client_key', 'block_flag']).astype(float)
 
