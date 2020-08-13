@@ -131,7 +131,7 @@ class EntryCompliance(MLModel):
         all_cols = set(full_market_ie.columns)
         rest_cols = list(all_cols.difference(IE_CATEG_FEATURES_COLS))
 
-        ie_cols_names = IE_CATEG_FEATURES_COLS + rest_cols
+        ie_cols_names = IE_CATEG_FEATURES_COLS + sorted(rest_cols)
         full_market_ie = full_market_ie.loc[:, ie_cols_names]
 
         ie_categ_imputer_transformer = Pipeline(steps=[
@@ -193,7 +193,7 @@ class EntryCompliance(MLModel):
         all_cols = set(full_market_comp.columns)
         rest_cols = list(all_cols.difference(COMP_CATEG_FEATURES_COLS))
 
-        comp_cols_names = COMP_CATEG_FEATURES_COLS + rest_cols
+        comp_cols_names = COMP_CATEG_FEATURES_COLS + sorted(rest_cols)
         full_market_comp = full_market_comp.loc[:, comp_cols_names]
 
         comp_categ_imputer_transformer = Pipeline(steps=[
@@ -278,9 +278,9 @@ class EntryCompliance(MLModel):
         all_cols = set(full_active_ie.columns)
         rest_cols = list(all_cols.difference(IE_CATEG_FEATURES_COLS))
 
-        ie_cols_names = IE_CATEG_FEATURES_COLS + rest_cols
+        ie_cols_names = IE_CATEG_FEATURES_COLS + sorted(rest_cols)
         full_active_ie = full_active_ie.loc[:, ie_cols_names]
-
+        
         full_active_ie = pd.DataFrame(self.ie_column_imputer_transformer.transform(full_active_ie),
                                                                                                 columns=ie_cols_names)
         ie_inns = full_active_ie.loc[:, 'inn']
@@ -319,7 +319,7 @@ class EntryCompliance(MLModel):
         all_cols = set(full_active_comp.columns)
         rest_cols = list(all_cols.difference(COMP_CATEG_FEATURES_COLS))
 
-        comp_cols_names = COMP_CATEG_FEATURES_COLS + rest_cols
+        comp_cols_names = COMP_CATEG_FEATURES_COLS + sorted(rest_cols)
         full_active_comp = full_active_comp.loc[:, comp_cols_names]
 
         full_active_comp = pd.DataFrame(self.comp_column_imputer_transformer.transform(full_active_comp),
