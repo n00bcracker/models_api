@@ -12,24 +12,41 @@ import os
 import pandas as pd
 import numpy as np
 import datetime
+from sqlalchemy import INTEGER, FLOAT, VARCHAR, DATE
 from sklearn.pipeline import Pipeline
 from sklearn.impute import SimpleImputer
 from sklearn.preprocessing import OrdinalEncoder
-from sklearn.compose import make_column_transformer, ColumnTransformer
+from sklearn.compose import make_column_transformer
 from xgboost.sklearn import XGBClassifier
 
 import traceback
 
 class EntryCompliance(MLModel):
+    full_market_ie_tablename = FULL_MARKET_IE_TABLE
+    full_market_comp_tablename = FULL_MARKET_COMP_TABLE
+    blocked_ie_tablename = BLOCKED_IE_TABLE
+    blocked_comp_tablename = BLOCKED_COMP_TABLE
+
+    pred_res_ie_tablename = ENTRY_COMPLIANCE_IE_TABLE
+    pred_res_comp_tablename = ENTRY_COMPLIANCE_COMP_TABLE
+
+    pred_res_ie_dtype = {
+                            'ddate' : DATE,
+                            'inn': VARCHAR(15),
+                            'prog_result': INTEGER,
+                            'prog_prob': FLOAT,
+                            }
+
+    pred_res_comp_dtype = {
+                            'ddate': DATE,
+                            'inn': VARCHAR(15),
+                            'kpp': VARCHAR(11),
+                            'prog_result': INTEGER,
+                            'prog_prob': FLOAT,
+                        }
+
     def __init__(self):
         super().__init__()
-        self.full_market_ie_tablename = FULL_MARKET_IE_TABLE
-        self.full_market_comp_tablename = FULL_MARKET_COMP_TABLE
-        self.blocked_ie_tablename = BLOCKED_IE_TABLE
-        self.blocked_comp_tablename = BLOCKED_COMP_TABLE
-
-        self.pred_res_ie_tablename = ENTRY_COMPLIANCE_IE_TABLE
-        self.pred_res_comp_tablename = ENTRY_COMPLIANCE_COMP_TABLE
 
         if not os.path.isdir(ENTCOMP_METADIR):
             os.mkdir(ENTCOMP_METADIR)
@@ -255,7 +272,6 @@ class EntryCompliance(MLModel):
                                     and t.current_flag = 1
                     """
 
-
         # Предсказание блокировок для ИП
         if self.ie_column_imputer_transformer is None or self.ie_compl_model is None:
             res[resources.RESPONSE_STATUS_FIELD] = 'Error'
@@ -293,9 +309,13 @@ class EntryCompliance(MLModel):
         ie_pred_result = pd.DataFrame({'inn': ie_inns, 'prog_result': ie_pred_block, 'prog_prob': ie_pred_prob[:, 1]})
 
         value_day = datetime.date.today()
-        ie_pred_result['value_day'] = value_day
+        ie_pred_result['ddate'] = value_day
 
-        self.save_df_in_sql_table(ie_pred_result, self.pred_res_ie_tablename)
+        save_success = self.save_df_in_sql_table(ie_pred_result, self.pred_res_ie_dtype, self.pred_res_ie_tablename)
+        if save_success == False:
+            res[resources.RESPONSE_STATUS_FIELD] = 'Error'
+            res[resources.RESPONSE_ERROR_FIELD] = 'Ошибка записи данных в SQL-таблицу'
+            return res
 
         # Предсказание блокировок для ООО
         if self.comp_column_imputer_transformer is None or self.comp_compl_model is None:
@@ -336,9 +356,14 @@ class EntryCompliance(MLModel):
         del full_active_comp
         comp_pred_result = pd.DataFrame({'inn': comp_clkey.inn, 'kpp': comp_clkey.kpp,
                                                     'prog_result': comp_pred_block, 'prog_prob': comp_pred_prob[:, 1]})
-        comp_pred_result['value_day'] = value_day
+        comp_pred_result['ddate'] = value_day
 
-        self.save_df_in_sql_table(comp_pred_result, self.pred_res_comp_tablename)
+        save_success = self.save_df_in_sql_table(comp_pred_result, self.pred_res_comp_dtype,
+                                                                        self.pred_res_comp_tablename)
+        if save_success == False:
+            res[resources.RESPONSE_STATUS_FIELD] = 'Error'
+            res[resources.RESPONSE_ERROR_FIELD] = 'Ошибка записи данных в SQL-таблицу'
+            return res
 
 
         res[resources.RESPONSE_STATUS_FIELD] = 'Ok'
