@@ -71,23 +71,23 @@ class EntryCompliance(MLModel):
         return df
     
     def get_block_predict(self, inn):
+        sql_query = """
+                select
+                    t.ddate,
+                    t.inn,
+                    {kpp}
+                    t.prog_result,
+                    t.prog_prob
+                        from {tablename} t
+                            where 1=1
+                            and t.ddate = (select max(ddate) from {tablename})
+                            and t.inn = :inn
+            """
+        
         if len(inn) == 10:
-            tablename = self.pred_res_comp_tablename
+            sql_query = sql_query.format(kpp='t.kpp,', tablename=self.pred_res_comp_tablename)
         else:
-            tablename = self.pred_res_ie_tablename
-
-        sql_query = f"""
-                        select
-                            t.ddate,
-                            t.inn,
-                            t.kpp,
-                            t.prog_result,
-                            t.prog_prob
-                                from {tablename} t
-                                    where 1=1
-                                    and t.ddate = (select max(ddate) from {tablename})
-                                    and t.inn = :inn
-                    """
+            sql_query = sql_query.format(kpp='', tablename = self.pred_res_ie_tablename)
 
         compl_df = self.read_sql_query(sql_query, params=[inn, ])
         return compl_df
