@@ -26,12 +26,12 @@ def get_model_result():
         response.status_code = 200
         return response
     else:
-        resp_data.update(model.get_predict(inn, kpp=kpp))
+        resp_data.update(model.predict(inn, kpp=kpp))
         response = jsonify(resp_data)
         response.status_code = 200
         return response
 
-app.route('/fit', methods=['GET', 'POST'])
+@app.route('/fit', methods=['GET', 'POST'])
 def model_fit():
     resp_data = {
                  resources.RESPONSE_STATUS_FIELD: None,
@@ -40,7 +40,7 @@ def model_fit():
 
     if request.method == 'GET':
         try:
-            job = queue.enqueue(fit_task, result_ttl=600)
+            job = queue.enqueue(fit_task, result_ttl=600, job_timeout='30m')
         except Exception:
             error = traceback.format_exc()
             resp_data[resources.RESPONSE_STATUS_FIELD] = 'Error'
