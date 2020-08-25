@@ -65,7 +65,7 @@ class SimilarCompanies(MLModel):
         df.loc[:, IE_ORDER_FEATURES_COLS] = df.loc[:, IE_ORDER_FEATURES_COLS].astype(float)
         # Преобразуем пропуски к одному виду
         df.loc[:, IE_CATEG_FEATURES_COLS] = df.loc[:, IE_CATEG_FEATURES_COLS].fillna(np.nan)
-        df.loc[:, IE_CATEG_FEATURES_COLS] = df.loc[:, COMP_CATEG_FEATURES_COLS].convert_dtypes(convert_string=False)
+        df.loc[:, IE_CATEG_FEATURES_COLS] = df.loc[:, IE_CATEG_FEATURES_COLS].convert_dtypes(convert_string=False)
         return df
 
     def preprocess_comp_table(self, df):
@@ -93,7 +93,7 @@ class SimilarCompanies(MLModel):
             res[resources.RESPONSE_ERROR_FIELD] = 'Отсутствуют данные для обучения'
             return res
         else:
-            full_market_ie = self.preprocess_comp_table(full_market_ie)
+            full_market_ie = self.preprocess_ie_table(full_market_ie)
 
         # Считаем частотность значений для категориальных признаков и моду для последующей кодировки
         ie_categ_feat_modes = dict()
@@ -157,14 +157,14 @@ class SimilarCompanies(MLModel):
             res[resources.RESPONSE_ERROR_FIELD] = 'Отсутствуют данные для обучения'
             return res
         else:
-            ie_clients = self.preprocess_comp_table(ie_clients)
+            ie_clients = self.preprocess_ie_table(ie_clients)
 
         # Упорядочиваем столбцы датасета для дальнейших преобразований
         ie_clients = ie_clients.loc[:, ie_cols_names]
 
         # Заполняем пропуски и преобразуем переменные
-        ie_clients = pd.DataFrame(self.comp_column_imputer.transform(ie_clients), columns=ie_cols_names)
-        ie_clients = pd.DataFrame(self.comp_column_tranformer.transform(ie_clients), columns=ie_cols_names)
+        ie_clients = pd.DataFrame(self.ie_column_imputer.transform(ie_clients), columns=ie_cols_names)
+        ie_clients = pd.DataFrame(self.ie_column_tranformer.transform(ie_clients), columns=ie_cols_names)
 
         # Список переменных модели
         ie_features_cols = IE_CONT_FEATURES_COLS + IE_ORDER_FEATURES_COLS + IE_CATEG_FEATURES_COLS\

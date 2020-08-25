@@ -29,7 +29,7 @@ COMP_ORDER_FEATURES_COLS = ['age', 'okved_cnt', 'cnt_comp_in_group', ]
 COMP_BIN_CATEG_COLS = []
 COMP_CATEG_FEATURES_COLS = ['okfs_code', 'city', 'okved_code4', ]
 
-IE_ID_COLS = ['client_key', 'inn', 'kpp', 'okved_code',]
+IE_ID_COLS = ['client_key', 'inn', 'okved_code',]
 IE_CONT_FEATURES_COLS = ['city_population', 'revenue_all', 'post_office_latitude', 'post_office_longitude', ]
 IE_ORDER_FEATURES_COLS = ['age', 'okved_cnt', 'cnt_comp_in_group', ]
 IE_BIN_CATEG_COLS = ['sex_code', ]
