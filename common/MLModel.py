@@ -7,7 +7,7 @@ import joblib
 import pickle
 import traceback
 
-class MLModel(object):
+class MLModel():
     def __init__(self):
         # self.app = app
         #TODO Сделать логирование

@@ -16,6 +16,7 @@ ENTCOMP_METADIR = os.path.join(METAFILES_DIR, 'entry_compliance')
 # Названия файлов с обученными преобразованиями и моделями
 IE_IMPUTER_TRANSFORMER_FILENAME = os.path.join(ENTCOMP_METADIR, 'ie_imp_transf.joblib.gz')
 IE_COMPL_MODEL_FILENAME = os.path.join(ENTCOMP_METADIR, 'ie_compl_model.joblib.gz')
+
 COMP_IMPUTER_TRANSFORMER_FILENAME = os.path.join(ENTCOMP_METADIR, 'comp_imp_transf.joblib.gz')
 COMP_COMPL_MODEL_FILENAME = os.path.join(ENTCOMP_METADIR, 'comp_compl_model.joblib.gz')
 

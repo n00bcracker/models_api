@@ -1,5 +1,5 @@
 from common import MLModel
-from models.entry_compliance.config import ENTRY_COMPLIANCE_COMP_TABLE, ENTRY_COMPLIANCE_IE_TABLE
+from models.entry_compliance.config import ENTRY_COMPLIANCE_IE_TABLE, ENTRY_COMPLIANCE_COMP_TABLE
 from models.entry_compliance.config import FULL_MARKET_IE_TABLE, FULL_MARKET_COMP_TABLE
 from models.entry_compliance.config import BLOCKED_IE_TABLE, BLOCKED_COMP_TABLE
 from models.entry_compliance.config import IE_CATEG_FEATURES_COLS, COMP_CATEG_FEATURES_COLS
@@ -187,7 +187,7 @@ class EntryCompliance(MLModel):
         self.ie_compl_model = XGBClassifier(base_score=0.01, booster='gbtree', colsample_bylevel=1,
                                     colsample_bytree=0.75, gamma=0, learning_rate=0.1, max_delta_step=0,
                                     max_depth=7, min_child_weight=5, missing=None, n_estimators=200,
-                                    n_jobs=1, nthread=None, objective='binary:logistic', random_state=0,
+                                    n_jobs=4, nthread=None, objective='binary:logistic', random_state=0,
                                     reg_alpha=0, reg_lambda=1, scale_pos_weight=1, seed=None,
                                     silent=True, subsample=0.6)
         self.ie_compl_model.fit(x_train_ie, y_train_ie)
@@ -250,7 +250,7 @@ class EntryCompliance(MLModel):
         self.comp_compl_model = XGBClassifier(base_score=0.01, booster='gbtree', colsample_bylevel=1,
                                     colsample_bytree=0.75, gamma=0, learning_rate=0.1, max_delta_step=0,
                                     max_depth=7, min_child_weight=5, missing=None, n_estimators=200,
-                                    n_jobs=1, nthread=None, objective='binary:logistic', random_state=0,
+                                    n_jobs=4, nthread=None, objective='binary:logistic', random_state=0,
                                     reg_alpha=0, reg_lambda=1, scale_pos_weight=1, seed=None,
                                     silent=True, subsample=0.6)
         self.comp_compl_model.fit(x_train_comp, y_train_comp)
