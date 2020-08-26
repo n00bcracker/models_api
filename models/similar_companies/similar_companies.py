@@ -272,7 +272,8 @@ class SimilarCompanies(MLModel):
         self.comp_nnbrs_models = {}
         for okv_group in self.comp_okv_groups:
             comp_train_X = comp_clients.loc[comp_clients.okved_code == okv_group, comp_features_cols]
-            comp_nnbrs_model = NearestNeighbors(n_neighbors=9, algorithm='ball_tree', n_jobs=6, metric=cython_funcs.comp_weighted_dist)
+            comp_nnbrs_model = NearestNeighbors(n_neighbors=9, algorithm='ball_tree', n_jobs=6,
+                                                                                metric=cython_funcs.comp_weighted_dist)
             self.comp_nnbrs_models[okv_group] = comp_nnbrs_model.fit(comp_train_X)
 
         # Устанавливаем индексы для каждой группы оквэдов

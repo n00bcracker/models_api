@@ -4,7 +4,6 @@ from utils import resources
 import traceback
 import os, signal
 from flask import request, jsonify
-import requests
 
 @app.route('/', methods=['POST'])
 def get_model_result():
@@ -77,8 +76,6 @@ def model_fit():
                 resp_data[resources.RESPONSE_ERROR_FIELD] = job.exc_info
             elif job_status == 'finished':
                 resp_data.update(job.result)
-                if resp_data[resources.RESPONSE_STATUS_FIELD] == 'Ok':
-                    requests.get('http://similar_companies:3320/reboot')
 
             response = jsonify(resp_data)
             response.status_code = 200
