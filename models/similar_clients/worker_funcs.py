@@ -1,11 +1,11 @@
-from models.similar_companies import SimilarCompanies
+from models.similar_clients import SimilarClients
 from utils import resources
 
 import requests
 
 def fit_task():
-    model = SimilarCompanies()
+    model = SimilarClients()
     res = model.fit()
     if res[resources.RESPONSE_STATUS_FIELD] == 'Ok':
-        requests.get('http://similar_companies:3320/reboot')
+        requests.get('http://similar_clients:3320/reboot')
     return res

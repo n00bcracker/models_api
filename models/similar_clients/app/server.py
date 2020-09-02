@@ -3,18 +3,18 @@ from rq import Queue
 from redis import Redis
 import schedule
 import time, datetime
-from models.similar_companies import SimilarCompanies
+from models.similar_clients import SimilarClients
 
 app = Flask(__name__)
 app.logger.setLevel("DEBUG")
 
 redis_conn = Redis(host='redis')
 queue = Queue(connection=redis_conn)
-model = SimilarCompanies()
+model = SimilarClients()
 
-from models.similar_companies.app import server_routes
+from models.similar_clients.app import server_routes
 
-app.logger.info("Similar companies server service startup")
+app.logger.info("Similar clients server service startup")
 
 # def monthly_fitting():
 #     if datetime.date.today().day == 14:

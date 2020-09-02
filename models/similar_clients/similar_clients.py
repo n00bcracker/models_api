@@ -1,19 +1,19 @@
 from common import MLModel
-from models.similar_companies.config import FULL_MARKET_IE_TABLE, FULL_MARKET_COMP_TABLE
-from models.similar_companies.config import CLIENTS_IE_TABLE, CLIENTS_COMP_TABLE
+from models.similar_clients.config import FULL_MARKET_IE_TABLE, FULL_MARKET_COMP_TABLE
+from models.similar_clients.config import CLIENTS_IE_TABLE, CLIENTS_COMP_TABLE
 
-from models.similar_companies.config import IE_ID_COLS, COMP_ID_COLS
-from models.similar_companies.config import IE_CONT_FEATURES_COLS, COMP_CONT_FEATURES_COLS
-from models.similar_companies.config import IE_ORDER_FEATURES_COLS, COMP_ORDER_FEATURES_COLS
-from models.similar_companies.config import IE_BIN_CATEG_COLS, COMP_BIN_CATEG_COLS
-from models.similar_companies.config import IE_CATEG_FEATURES_COLS, COMP_CATEG_FEATURES_COLS
-from models.similar_companies.config import IE_IMPUTER_FILENAME, COMP_IMPUTER_FILENAME
-from models.similar_companies.config import IE_TRANSFORMER_FILENAME, COMP_TRANSFORMER_FILENAME
-from models.similar_companies.config import IE_NN_MODELS_FILENAME, COMP_NN_MODELS_FILENAME
-from models.similar_companies.config import IE_CLIENTS_IDS_FILENAME, COMP_CLIENTS_IDS_FILENAME
-from models.similar_companies.config import SIMCOMP_METADIR
+from models.similar_clients.config import IE_ID_COLS, COMP_ID_COLS
+from models.similar_clients.config import IE_CONT_FEATURES_COLS, COMP_CONT_FEATURES_COLS
+from models.similar_clients.config import IE_ORDER_FEATURES_COLS, COMP_ORDER_FEATURES_COLS
+from models.similar_clients.config import IE_BIN_CATEG_COLS, COMP_BIN_CATEG_COLS
+from models.similar_clients.config import IE_CATEG_FEATURES_COLS, COMP_CATEG_FEATURES_COLS
+from models.similar_clients.config import IE_IMPUTER_FILENAME, COMP_IMPUTER_FILENAME
+from models.similar_clients.config import IE_TRANSFORMER_FILENAME, COMP_TRANSFORMER_FILENAME
+from models.similar_clients.config import IE_NN_MODELS_FILENAME, COMP_NN_MODELS_FILENAME
+from models.similar_clients.config import IE_CLIENTS_IDS_FILENAME, COMP_CLIENTS_IDS_FILENAME
+from models.similar_clients.config import SIMCOMP_METADIR
 from utils import resources, check_inn
-import models.similar_companies.cython_funcs as cython_funcs
+import models.similar_clients.cython_funcs as cython_funcs
 
 import os
 import pandas as pd
@@ -25,7 +25,7 @@ from sklearn.compose import make_column_transformer
 from sklearn.neighbors import NearestNeighbors
 
 
-class SimilarCompanies(MLModel):
+class SimilarClients(MLModel):
     full_market_ie_tablename = FULL_MARKET_IE_TABLE
     full_market_comp_tablename = FULL_MARKET_COMP_TABLE
     clients_ie_tablename = CLIENTS_IE_TABLE
@@ -372,8 +372,8 @@ class SimilarCompanies(MLModel):
                     comp_nneighbors = comp_nneighbors.loc[:, ['client_key', 'distanse']]
                     comp_nneighbors = comp_nneighbors.sort_values('distanse')
 
-                    res[resources.RESPONSE_STATUS_FIELD] = 'Ok'
                     res['similar_clients'] = comp_nneighbors.to_dict(orient='records')
+                    res[resources.RESPONSE_STATUS_FIELD] = 'Ok'
                     return res
                 else:
                     res[resources.RESPONSE_STATUS_FIELD] = 'Error'

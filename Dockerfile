@@ -20,7 +20,7 @@ COPY common common
 COPY utils utils
 COPY models models
 COPY config.py boot.sh ./
-WORKDIR ./models/similar_companies
+WORKDIR ./models/similar_clients
 RUN python setup.py build_ext --inplace
 RUN  rm -rf ./build ./*.c ./*.pyx
 WORKDIR /home/ml_model

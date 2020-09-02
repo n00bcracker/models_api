@@ -1,5 +1,5 @@
-from models.similar_companies.app.server import app, model, queue
-from models.similar_companies.worker_funcs import fit_task
+from models.similar_clients.app.server import app, model, queue
+from models.similar_clients.worker_funcs import fit_task
 from utils import resources
 import traceback
 import os, signal

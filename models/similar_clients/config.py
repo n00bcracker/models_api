@@ -8,7 +8,7 @@ FULL_MARKET_COMP_TABLE = 'si_nn_test'
 CLIENTS_IE_TABLE = 'si_nn_ie_train'
 CLIENTS_COMP_TABLE = 'si_nn_train'
 
-SIMCOMP_METADIR = os.path.join(METAFILES_DIR, 'similar_companies')
+SIMCOMP_METADIR = os.path.join(METAFILES_DIR, 'similar_clients')
 
 # Названия файлов с обученными преобразованиями и моделями
 IE_IMPUTER_FILENAME = os.path.join(SIMCOMP_METADIR, 'ie_imputing.joblib.gz')
