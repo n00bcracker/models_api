@@ -11,6 +11,7 @@ class MLModel(OracleDB):
     def __init__(self):
         # self.app = app
         #TODO Сделать логирование
+        super().__init__()
 
         if not os.path.isdir(METAFILES_DIR):
             os.mkdir(METAFILES_DIR)

@@ -8,6 +8,6 @@ app.logger.setLevel("DEBUG")
 
 model = SimilarClientsStats()
 
-from models.similar_clients.app import server_routes
+from models.similar_clients_stats.app import server_routes
 
 app.logger.info("Similar companies statistic server service startup")
