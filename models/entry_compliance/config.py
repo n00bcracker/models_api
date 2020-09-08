@@ -2,14 +2,14 @@ import os
 from config import METAFILES_DIR
 
 # Названия таблиц
-FULL_MARKET_IE_TABLE = "si_complieprog_final"
-FULL_MARKET_COMP_TABLE = "si_complprog_final"
+FULL_MARKET_IE_TABLE = os.getenv('FULL_MARKET_IE_TABLE') or None
+FULL_MARKET_COMP_TABLE = os.getenv('FULL_MARKET_COMP_TABLE') or None
 
-BLOCKED_IE_TABLE = "si_complietrai_final"
-BLOCKED_COMP_TABLE = "si_compltrai_final"
+BLOCKED_IE_TABLE = os.getenv('BLOCKED_IE_TABLE') or None
+BLOCKED_COMP_TABLE = os.getenv('BLOCKED_COMP_TABLE') or None
 
-ENTRY_COMPLIANCE_IE_TABLE = "si_ie_compl_prognoz"
-ENTRY_COMPLIANCE_COMP_TABLE = "si_ooo_compl_prognoz"
+ENTRY_COMPLIANCE_IE_TABLE = os.getenv('ENTRY_COMPLIANCE_IE_TABLE') or None
+ENTRY_COMPLIANCE_COMP_TABLE = os.getenv('ENTRY_COMPLIANCE_COMP_TABLE') or None
 
 ENTCOMP_METADIR = os.path.join(METAFILES_DIR, 'entry_compliance')
 

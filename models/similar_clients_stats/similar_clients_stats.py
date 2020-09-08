@@ -1,5 +1,6 @@
 from common import OracleDB
 from utils import resources, check_inn
+from models.similar_clients_stats.config import CLIENTS_PORTFOLIO_TABLE
 from models.similar_clients_stats.config import SUM_AGGR_COLS, SUM_NOTNULL_AGGR_COLS, AVG_AGGR_COLS, MODA_AGGR_COLS
 from models.similar_clients_stats.config import DISTR_AGGR_COLS, DISTR_NULL_AGGR_COLS, TOP_AGGR_COLS
 from models.similar_clients_stats.config import ROUND_0_COLS, ROUND_1_COLS, ROUND_2_COLS
@@ -10,6 +11,7 @@ import numpy as np
 
 class SimilarClientsStats(OracleDB):
     col_values_tranl_map = COLUMN_VALUES_DICT
+    clients_portfolio_tablename = CLIENTS_PORTFOLIO_TABLE
 
     def __init__(self):
         super().__init__()
@@ -18,9 +20,9 @@ class SimilarClientsStats(OracleDB):
         bind_names = [':' + str(i) for i in range(9)]
 
         sql_query = "select * " \
-                        "from leo_dinam_portf t " \
-                            "where t.client_key in ({})"
-        sql_query = sql_query.format(', '.join(bind_names))
+                        "from {tablename} t " \
+                            "where t.client_key in ({cl_keys})"
+        sql_query = sql_query.format(tablename=self.clients_portfolio_tablename, cl_keys=', '.join(bind_names))
         clients_portf = self.read_sql_query(sql_query, params=clients_keys)
         return clients_portf
 

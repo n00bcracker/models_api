@@ -2,11 +2,11 @@ import os
 from config import METAFILES_DIR
 
 # Названия таблиц
-FULL_MARKET_IE_TABLE = 'si_nn_ie_test'
-FULL_MARKET_COMP_TABLE = 'si_nn_test'
+FULL_MARKET_IE_TABLE = os.getenv('FULL_MARKET_IE_TABLE') or None
+FULL_MARKET_COMP_TABLE = os.getenv('FULL_MARKET_COMP_TABLE') or None
 
-CLIENTS_IE_TABLE = 'si_nn_ie_train'
-CLIENTS_COMP_TABLE = 'si_nn_train'
+CLIENTS_IE_TABLE = os.getenv('CLIENTS_IE_TABLE') or None
+CLIENTS_COMP_TABLE = os.getenv('CLIENTS_COMP_TABLE') or None
 
 SIMCOMP_METADIR = os.path.join(METAFILES_DIR, 'similar_clients')
 

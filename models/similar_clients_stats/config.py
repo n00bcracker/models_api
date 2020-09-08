@@ -1,5 +1,8 @@
 import os
 
+# Названия таблиц
+CLIENTS_PORTFOLIO_TABLE = os.getenv('CLIENTS_PORTFOLIO_TABLE') or None
+
 SUM_AGGR_COLS = ['active', 'client_of_tochka', 'block_ufm', 'tax_restrictions', 'sp_big_plans', 'sp_fast_growth',
                 'sp_all_world', 'sp_open_opportunities', 'sp_first_step', 'sp_own_business', 'sp_business_package',
                 'corp_card', 'factoring', 'nkl', 'nso', 'electron_guar', 'business_prepaid', 'overdraft', 'deposit',
