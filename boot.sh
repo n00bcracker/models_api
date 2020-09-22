@@ -1,7 +1,10 @@
 #!/bin/bash
 if [ -n "$MODEL_TYPE" ]; then
-  if [ $MODEL_TYPE == "revenue_spark" ]; then
-    exec gunicorn -b :$SERVICE_PORT --workers $SERVICE_WORKERS --threads $SERVICE_THREADS --timeout $GUNICORN_TIMEOUT --access-logfile - --log-level=debug models.revenue_spark.app.server:app
+  if [ $MODEL_TYPE == "revenue" ]; then
+    exec gunicorn -b :$SERVICE_PORT --workers $SERVICE_WORKERS --threads $SERVICE_THREADS --timeout $GUNICORN_TIMEOUT --access-logfile - --log-level=debug models.revenue.app.server:app
+    exit
+  elif [ $MODEL_TYPE == "group_revenue" ]; then
+    exec gunicorn -b :$SERVICE_PORT --workers $SERVICE_WORKERS --threads $SERVICE_THREADS --timeout $GUNICORN_TIMEOUT --access-logfile - --log-level=debug models.group_revenue.app.server:app
     exit
   elif [ $MODEL_TYPE == "entry_compliance" ]; then
     exec gunicorn -b :$SERVICE_PORT --workers $SERVICE_WORKERS --threads $SERVICE_THREADS --timeout $GUNICORN_TIMEOUT --access-logfile - --log-level=debug models.entry_compliance.app.server:app

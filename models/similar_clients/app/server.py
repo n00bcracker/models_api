@@ -14,7 +14,7 @@ model = SimilarClients()
 
 from models.similar_clients.app import server_routes
 
-app.logger.info("Similar clients server service startup")
+app.logger.info("Similar clients service startup")
 
 # def monthly_fitting():
 #     if datetime.date.today().day == 14:

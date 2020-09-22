@@ -54,6 +54,8 @@ def get_model_result():
         resp_data[resources.REQUEST_ID_FIELD] = req_json[resources.REQUEST_ID_FIELD]
         inn = req_json['inn']
         kpp = req_json.get('kpp', None)
+        resp_data['inn'] = inn
+        resp_data['kpp'] = kpp
     except Exception:
         errors = traceback.format_exc()
         resp_data[resources.RESPONSE_STATUS_FIELD] = 'Error'
@@ -68,6 +70,8 @@ def get_model_result():
             sim_cls_data = sim_cls_resp.json()
             if sim_cls_data[resources.REQUEST_ID_FIELD] == resp_data[resources.REQUEST_ID_FIELD]:
                 if sim_cls_data[resources.RESPONSE_STATUS_FIELD] == 'Ok':
+                    resp_data['inn'] = sim_cls_data['inn']
+                    resp_data['kpp'] = sim_cls_data['kpp']
                     sim_cls = sim_cls_data['similar_clients']
                     resp_data.update(model.similar_clients_aggr(sim_cls))
                 else:

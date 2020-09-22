@@ -338,6 +338,8 @@ class SimilarClients(MLModel):
                         res[resources.RESPONSE_ERROR_FIELD] = 'Отсутствуют данные для переданных ИНН и КПП'
                         return res
 
+            res['inn'] = feats.inn[0]
+            res['kpp'] = feats.iloc[0, :].get('kpp')
             if len(inn) == 10:
                 if self.comp_column_imputer is None or self.comp_column_tranformer is None\
                                                 or self.comp_nnbrs_models is None or self.comp_clients_ids is None:

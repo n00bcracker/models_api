@@ -12,4 +12,4 @@ model = EntryCompliance()
 
 from models.entry_compliance.app import server_routes
 
-app.logger.info("Entry Compliance server service startup")
+app.logger.info("Entry Compliance service startup")

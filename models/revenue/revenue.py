@@ -1,11 +1,11 @@
 from common import MLModel
-from models.revenue_spark.config import REVENUE_SPARK_TABLE
+from models.revenue.config import REVENUE_SPARK_TABLE
 from utils import resources
 from utils import check_inn
 import pandas as pd
 import traceback
 
-class RevenueSpark(MLModel):
+class Revenue(MLModel):
     def __init__(self):
         super().__init__()
 
@@ -31,8 +31,6 @@ class RevenueSpark(MLModel):
 
     def get_predict(self, inn, kpp=None):
         res = dict()
-        res['inn'] = inn
-        res['kpp'] = kpp
         if check_inn(inn):
             revenue_df = self.get_revenue(inn)
             if revenue_df is None:
@@ -52,6 +50,8 @@ class RevenueSpark(MLModel):
                         res[resources.RESPONSE_ERROR_FIELD] = 'Отсутствуют данные для переданных ИНН и КПП'
                     else:
                         res[resources.RESPONSE_STATUS_FIELD] = 'Ok'
+                        res['inn'] = revenue_df.inn[0]
+                        res['kpp'] = revenue_df.kpp[0]
                         res['name_rus'] = revenue_df.short_name_rus[0]
                         res['segment'] = revenue_df.segment[0]
 

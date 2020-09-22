@@ -17,6 +17,8 @@ def get_model_result():
         resp_data[resources.REQUEST_ID_FIELD] = req_json[resources.REQUEST_ID_FIELD]
         inn = req_json['inn']
         kpp = req_json.get('kpp', None)
+        resp_data['inn'] = inn
+        resp_data['kpp'] = kpp
     except Exception:
         errors = traceback.format_exc()
         resp_data[resources.RESPONSE_STATUS_FIELD] = 'Error'

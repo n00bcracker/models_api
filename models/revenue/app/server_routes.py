@@ -1,4 +1,4 @@
-from models.revenue_spark.app.server import app, model
+from models.revenue.app.server import app, model
 from utils import resources
 import traceback
 from flask import request, jsonify
@@ -14,6 +14,8 @@ def get_model_result():
         resp_data[resources.REQUEST_ID_FIELD] = req_json[resources.REQUEST_ID_FIELD]
         inn = req_json['inn']
         kpp = req_json.get('kpp', None)
+        resp_data['inn'] = inn
+        resp_data['kpp'] = kpp
     except Exception:
         errors = traceback.format_exc()
         resp_data[resources.RESPONSE_STATUS_FIELD] = 'Error'

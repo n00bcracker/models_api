@@ -13,4 +13,4 @@ model = SimilarClientsStats()
 
 from models.similar_clients_stats.app import server_routes
 
-app.logger.info("Similar companies statistic server service startup")
+app.logger.info("Similar companies statistic service startup")

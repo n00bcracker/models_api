@@ -94,8 +94,6 @@ class EntryCompliance(MLModel):
 
     def get_predict(self, inn, kpp=None):
         res = dict()
-        res['inn'] = inn
-        res['kpp'] = kpp
         if check_inn(inn):
             compl_df = self.get_block_predict(inn)
             if compl_df is None:
@@ -120,6 +118,8 @@ class EntryCompliance(MLModel):
 
             else:
                 res[resources.RESPONSE_STATUS_FIELD] = 'Ok'
+                res['inn'] = compl_df.inn[0]
+                res['kpp'] = compl_df.iloc[0,:].get('kpp')
                 res['will_be_blocked_in_3m'] = True if compl_df.prog_result[0] == 1 else False
                 res['block_probability'] = compl_df.prog_prob[0]
         else:
