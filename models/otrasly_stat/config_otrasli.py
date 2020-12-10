@@ -1,3 +1,3 @@
 import os
 # Названия таблиц
-OTRASLI_TABLE = os.getenv('OTRASLI_TABLE') or 'si_otrasli_stat'
+OTRASLI_TABLE = os.getenv('OTRASLI_TABLE') or None
