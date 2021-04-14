@@ -13,7 +13,7 @@ def get_model_result():
                  }
     try:
         req_json = request.get_json()
-        resp_data[resources.REQUEST_ID_FIELD] = req_json[resources.REQUEST_ID_FIELD]
+        #resp_data[resources.REQUEST_ID_FIELD] = req_json[resources.REQUEST_ID_FIELD]
         inn = req_json['inn']
         kpp = req_json['kpp']
         resp_data['inn'] = inn
