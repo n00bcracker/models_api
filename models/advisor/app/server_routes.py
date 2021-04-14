@@ -14,8 +14,11 @@ def get_model_result():
     try:
         req_json = request.get_json()
         resp_data[resources.REQUEST_ID_FIELD] = req_json[resources.REQUEST_ID_FIELD]
-        client_key = req_json['client_key']
-        resp_data['client_key'] = client_key
+        inn = req_json['inn']
+        kpp = req_json['kpp']
+        resp_data['inn'] = inn
+        resp_data['kpp'] = kpp
+
 
     except Exception:
         errors = traceback.format_exc()
@@ -26,10 +29,11 @@ def get_model_result():
         response.status_code = 200
         return response
     else:
-        resp_data.update(model.get_block_predict(client_key))
+        resp_data.update(model.get_block_predict(inn, kpp))
         response = jsonify(resp_data)
         response.status_code = 200
         return response
+
 
 @app.route('/', methods=['POST'])
 def insert_or_update_event():
@@ -39,7 +43,7 @@ def insert_or_update_event():
                  }
     try:
         req_json = request.get_json()
-        resp_data[resources.REQUEST_ID_FIELD] = req_json[resources.REQUEST_ID_FIELD]
+        #resp_data[resources.REQUEST_ID_FIELD] = req_json[resources.REQUEST_ID_FIELD]
         #client_key = req_json['client_key']
         inn = req_json['inn']
         kpp = req_json['kpp']
