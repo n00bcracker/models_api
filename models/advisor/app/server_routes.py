@@ -3,68 +3,62 @@ from utils import resources
 import traceback
 from flask import request, jsonify
 import os, signal
+#from flask import Response
 
 
-@app.route('/', methods=['GET'])
+@app.route('/', methods=['GET', 'POST'])
 def get_model_result():
-    resp_data = {resources.REQUEST_ID_FIELD: None,
-                 resources.RESPONSE_STATUS_FIELD: None,
-                 resources.RESPONSE_ERROR_FIELD: None
+    resp_data = {#resources.REQUEST_ID_FIELD: None,
+                 #resources.RESPONSE_STATUS_FIELD: None,
+                 #resources.RESPONSE_ERROR_FIELD: None
                  }
-    try:
-        req_json = request.get_json()
-        #resp_data[resources.REQUEST_ID_FIELD] = req_json[resources.REQUEST_ID_FIELD]
-        inn = req_json['inn']
-        kpp = req_json['kpp']
-        resp_data['inn'] = inn
-        resp_data['kpp'] = kpp
+    if  request.method == 'POST':
+        try:
+                req_json = request.get_json()          
+                inn = req_json.get('inn', None)
+                kpp = req_json.get('kpp', None)
+                if kpp == '': kpp = None
+                congrat = req_json.get('congratulationCode', None)
+                date = req_json.get('date', None)
 
+        except Exception:
+                errors = traceback.format_exc()
+                resp_data[resources.RESPONSE_STATUS_FIELD] = 'Error'
+                resp_data[resources.RESPONSE_ERROR_FIELD] = errors
+                app.logger.error(errors)
+                response = jsonify(resp_data)
+                response.status_code = 200
+                return response
+        else:
+                resp_data.update(model.post_update(inn, kpp, congrat, date))
+                response = jsonify(resp_data)
+                response.status_code = 200
+                return response
+            
+    if request.method == 'GET':
+        
+                try:
 
-    except Exception:
-        errors = traceback.format_exc()
-        resp_data[resources.RESPONSE_STATUS_FIELD] = 'Error'
-        resp_data[resources.RESPONSE_ERROR_FIELD] = errors
-        app.logger.error(errors)
-        response = jsonify(resp_data)
-        response.status_code = 200
-        return response
-    else:
-        resp_data.update(model.get_block_predict(inn, kpp))
-        response = jsonify(resp_data)
-        response.status_code = 200
-        return response
-
-
-@app.route('/', methods=['POST'])
-def insert_or_update_event():
-    resp_data = {resources.REQUEST_ID_FIELD: None,
-                 resources.RESPONSE_STATUS_FIELD: None,
-                 resources.RESPONSE_ERROR_FIELD: None
-                 }
-    try:
-        req_json = request.get_json()
-        #resp_data[resources.REQUEST_ID_FIELD] = req_json[resources.REQUEST_ID_FIELD]
-        #client_key = req_json['client_key']
-        inn = req_json['inn']
-        kpp = req_json['kpp']
-        congrat = req_json['congratulationCode']
-        resp_data['inn'] = inn
-        resp_data['kpp'] = kpp
-        resp_data['congratulationCode'] = congrat
-
-    except Exception:
-        errors = traceback.format_exc()
-        resp_data[resources.RESPONSE_STATUS_FIELD] = 'Error'
-        resp_data[resources.RESPONSE_ERROR_FIELD] = errors
-        app.logger.error(errors)
-        response = jsonify(resp_data)
-        response.status_code = 200
-        return response
-    else:
-        resp_data.update(model.insert_event(inn, kpp, congrat))
-        response = jsonify(resp_data)
-        response.status_code = 200
-        return response
+                    inn = request.args.get('inn')
+                    kpp = request.args.get('kpp')
+                    if kpp == '': kpp = None
+                 
+                except Exception:
+                    errors = traceback.format_exc()
+                    resp_data[resources.RESPONSE_STATUS_FIELD] = 'Error'
+                    resp_data[resources.RESPONSE_ERROR_FIELD] = errors
+                    app.logger.error(errors)
+                    response = jsonify(resp_data)
+                    response.status_code = 200
+                    return response
+                else:
+                    resp_data.update(model.get_block_predict(inn, kpp))
+                    response = jsonify(resp_data)
+                    response.status_code = 200
+                    return response
+               
+                
+        
 
 @app.route('/reboot', methods=['GET'])
 def reboot_gunicorn():
