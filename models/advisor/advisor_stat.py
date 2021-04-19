@@ -63,105 +63,120 @@ class AdvisorStat(OracleDB):
     advisor_table_name = ADVISOR_TABLE
     advisor_events_table_name = ADVISOR_EVENTS_TABLE
 
-    def generate_res_data(self, data_ful, events_row = None, event_is_empty = 1):
+    def generate_res_data(self, data_ful, fio, events_row = None, event_is_empty = 1):
         res = {}
         congrats = {}
-
-        products = {
-            'zpp_project_fl': 'SALARY_PROJECT',
-            'corp_card_fl': 'BUSINESS_CARDS',
-            'credit_fl': 'CREDIT',
-            'deposit_fl': 'DEPOSIT',
-            'acquiring_fl': 'ACQUIRING',
-            'garanty_fl': 'GUARANTEE',
-            'nso_fl': 'NSO',
-            'ved_fl': 'VED',
-            'sms_fl': 'SMS',
-            'inkass_fl': 'ENCASHMENT',
-            'mob_bank_fl': 'MOBILE_BANKING'
-        }
+     
+        products = [
+          
+            'salary_project',          
+            'business_cards',       
+            'credit',   
+            'deposit',          
+            'acquiring',        
+            'guarantee',      
+            'nso',         
+            'ved',       
+            'sms',      
+            'encashment',           
+            'mobile_banking'
+        ]
 
         # блок праздники
+      
         if ( data_ful.isnull().birth_lpr_fio[0] == False and  
+             data_ful.birth_lpr_fio[0] == fio and
              data_ful.isnull().birthday[0] == False and             
              data_ful.birthday[0]<=calc_past_date(data_ful.birthday[0])[0] <= data_ful.birthday[0] + pd.DateOffset(4)
            ):
             congrats['birthday'] = {
                 'code': 'BIRTHDAY',
                 'fullName': data_ful.birth_lpr_fio[0],
-                'date': data_ful.birthday[0],
+                'date': data_ful.birthday[0].strftime('%Y-%m-%d'),
                 'congYear': calc_past_date(data_ful.birthday[0])[1]
             }
    
         if ( data_ful.isnull().company_anniversary[0] == False and 
-             data_ful.isnull().birth_biz_count_year[0] == False and 
+             data_ful.isnull().company_count_year[0] == False and 
              data_ful.company_anniversary[0] - pd.DateOffset(5)<=calc_past_date(data_ful.company_anniversary[0])[0] <= data_ful.company_anniversary[0] + pd.DateOffset(6)
            ):
             congrats['company_anniversary'] = {
                 'code': 'COMPANY_ANNIVERSARY',
-                'date': data_ful.company_anniversary[0],
-                'fullYearsFromDate': data_ful.birth_biz_count_year[0],
+                'date': data_ful.company_anniversary[0].strftime('%Y-%m-%d'), 
+                'fullYearsFromDate': data_ful.company_count_year[0],
                 'congYear': calc_past_date(data_ful.company_anniversary[0])[1]
             }
             
         if ( data_ful.isnull().client_anniversary[0] == False and
-             data_ful.isnull().birth_work_count_year[0] == False and 
+             data_ful.isnull().client_count_year[0] == False and 
              data_ful.client_anniversary[0] - pd.DateOffset(5)<=calc_past_date(data_ful.client_anniversary[0])[0] <= data_ful.client_anniversary[0] + pd.DateOffset(6)
            ):
             congrats['client_anniversary'] = {
                 'code': 'CLIENT_ANNIVERSARY',
-                'date': data_ful.client_anniversary[0],
-                'fullYearsFromDate': data_ful.birth_work_count_year[0],
+                'date': data_ful.client_anniversary[0].strftime('%Y-%m-%d'),
+                'fullYearsFromDate': data_ful.client_count_year[0],
                 'congYear': calc_past_date(data_ful.client_anniversary[0])[1]
             }
         
-        if ( data_ful.isnull().prof_name[0] == False and 
+        if ( data_ful.isnull().industry_name[0] == False and 
              data_ful.isnull().industry_day[0] == False and 
              data_ful.industry_day[0] - pd.DateOffset(5)<=calc_past_date(data_ful.industry_day[0])[0] <= data_ful.industry_day[0] + pd.DateOffset(6)
            ):
             congrats['industry_day'] = {
                 'code': 'INDUSTRY_DAY',
-                'indName': data_ful.prof_name[0],
-                'date': data_ful.industry_day[0],
+                'indName': data_ful.industry_name[0],
+                'date': data_ful.industry_day[0].strftime('%Y-%m-%d'),
                 'congYear': calc_past_date(data_ful.industry_day[0])[1]
             }
         # прогноз блокировок
-        if data_ful.block_ib_fl[0] == 1:
-            res['blockingReason'] = True
-        else:
-            res['blockingReason'] = False
-
+        block_reas_res = []
+        for i in [
+                   'block_reason_1',
+                   'block_reason_2',
+                   'block_reason_3',
+                   'block_reason_4',
+                   'block_reason_5',
+                   'block_reason_6',
+                   'block_reason_7',
+                   'block_reason_8'
+                  ]:
+            if data_ful.isnull()[i][0] == False: block_reas_res.append(data_ful[i][0])
+        if block_reas_res: res['blockingReasons'] = block_reas_res
+                
+        # прогноз изменения стоимости бизнеса
+        if data_ful.isnull().same_business_change_value[0] == False:
+            res['sameBusinnessChangeValue'] =  data_ful.same_business_change_value[0]
+        
         # добавление продуктов
         prod_to_res = []
-        for i in products.keys():
-            if data_ful[i][0] == 1: prod_to_res.append(products[i])
+        for i in products:
+            if data_ful[i][0] == 1: prod_to_res.append(i.upper())
         if prod_to_res: res['productsOffer'] = prod_to_res
 
         # переход на новый ПУ (для нового предложения update res[offers].update)
-        if data_ful.isnull().change_pu_old[0] == False & data_ful.isnull().change_pu_new[0] == False & \
-                data_ful.isnull().change_pu_profit[0] == False:
+        if data_ful.isnull().change_pu_new[0] == False & data_ful.isnull().change_pu_profit[0] == False:
             res['offers'] = {
                 'tariff':
-                    {
-                        'puOld': data_ful.change_pu_old[0],
+                    {                  
                         'puNew': data_ful.change_pu_new[0],
                         'profit': data_ful.change_pu_profit[0]
                     }
             }
         if data_ful.isnull().themes_appeal_1[0] == False & data_ful.isnull().themes_appeal_2[0] == False & \
                 data_ful.isnull().themes_appeal_3[0] == False:
-            res['information'] = [data_ful.themes_appeal_1[0], data_ful.themes_appeal_2[0], data_ful.themes_appeal_3[0]]
+            res['information'] = [int(data_ful.themes_appeal_1[0]), int(data_ful.themes_appeal_2[0]), int(data_ful.themes_appeal_3[0])]
         
         # проверяем что ивентс не пусто
         if event_is_empty:
             
                     if congrats: res['congratulations'] = congrats.pop(list(congrats)[0])
         else:
+                
                 # удаляем отключенные клиентом поздравления 
                 if congrats:
                     for i in list(congrats):
                         
-                        if events_row[i][0]!= None and congrats[i]['date'].year == events_row[i][0].year: congrats.pop(i, None)
+                        if events_row[i][0]!= None and calc_past_date(datetime.datetime.strptime(congrats[i]['date'], '%Y-%m-%d'))[1] == events_row[i][0].year: congrats.pop(i, None)
 
                 # выбираем самое приоритетное и добавляем в ответ res
                 order = {
@@ -178,10 +193,10 @@ class AdvisorStat(OracleDB):
                                                             name_max_order = i
                                                             max_order = order[i]
                         congrats = congrats[name_max_order]
-                        res['congratulations'] = congrats
+                        res['congratulations'] = congrats       
          
         return res
-
+#gdljg
     def get_data(self, inn, kpp, table_name):
         if kpp==None:  
                        sql_query = """                                                                       
@@ -260,7 +275,7 @@ class AdvisorStat(OracleDB):
                                     else: 
                                             res[resources.RESPONSE_STATUS_FIELD] = 'Ok'
                                             res[resources.RESPONSE_ERROR_FIELD] = 'Данные успешно обновлены!'
-                                            res['data'] = data
+                                            
                 else:       
                          res[resources.RESPONSE_STATUS_FIELD] = 'Error'
                          res[resources.RESPONSE_ERROR_FIELD] = 'Клиент не в таблице или дубли или None. Ошибка БД!'
@@ -272,10 +287,10 @@ class AdvisorStat(OracleDB):
         return res
     
 
-    def get_block_predict(self, inn, kpp):
+    def get_block_predict(self, inn, kpp, fio):
         res = dict()
                 
-        if inn != None and check_inn(inn) and check_kpp(kpp):
+        if inn != None and fio != None and check_inn(inn) and check_kpp(kpp):
             try: 
                 advisor_dict = self.get_row_block(inn, kpp, self.advisor_table_name)
                 event_dict = self.get_row_block(inn, kpp, self.advisor_events_table_name)
@@ -294,8 +309,8 @@ class AdvisorStat(OracleDB):
                          
                             
                             try:
-                                 b = self.generate_res_data(advisor_dict['df_row'])
-                                
+                                b = self.generate_res_data(advisor_dict['df_row'], fio)
+                              
                             except: 
                                 res[resources.RESPONSE_STATUS_FIELD] = 'Error'
                                 res[resources.RESPONSE_ERROR_FIELD] = 'Внутренняя ошибка. Обработка данных витрины советника!'
@@ -311,7 +326,7 @@ class AdvisorStat(OracleDB):
                     elif event_dict['is_here']==1 and advisor_dict['is_here']==1:
                                                    
                         try:
-                            res.update(self.generate_res_data(advisor_dict['df_row'], events_row=event_dict['df_row'], event_is_empty=0))
+                            res.update(self.generate_res_data(advisor_dict['df_row'], fio, events_row=event_dict['df_row'], event_is_empty=0))
                         except: 
                                 res[resources.RESPONSE_STATUS_FIELD] = 'Error'
                                 res[resources.RESPONSE_ERROR_FIELD] = 'Внутренняя ошибка. Обработка данных витрины советника и табл. сост.'
@@ -322,7 +337,7 @@ class AdvisorStat(OracleDB):
                                                                                              
         else:
                  res[resources.RESPONSE_STATUS_FIELD] = 'Error'
-                 res[resources.RESPONSE_ERROR_FIELD] = 'Внешняя ошибка. Некорректный ИНН или КПП'
+                 res[resources.RESPONSE_ERROR_FIELD] = 'Внешняя ошибка. Некорректный ИНН или КПП или ФИО'
     
         return res
     
