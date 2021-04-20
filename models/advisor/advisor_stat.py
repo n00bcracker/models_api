@@ -22,12 +22,12 @@ def check_kpp(kp):
                                 else: return False 
     else: return True
 
-def check_date(date_text):
-    try:
-        datetime.datetime.strptime(date_text, '%Y-%m-%d')
-        return True
-    except:
-        return False
+def check_date(year):
+    
+    if year != None and type(year) == int: 
+        return True 
+    else: return False#
+        
 
 def calc_past_date(hday):    
         today = datetime.datetime.today()
@@ -176,7 +176,7 @@ class AdvisorStat(OracleDB):
                 if congrats:
                     for i in list(congrats):
                         
-                        if events_row[i][0]!= None and calc_past_date(datetime.datetime.strptime(congrats[i]['date'], '%Y-%m-%d'))[1] == events_row[i][0].year: congrats.pop(i, None)
+                        if events_row[i][0]!= None and calc_past_date(datetime.datetime.strptime(congrats[i]['date'], '%Y-%m-%d'))[1] == events_row[i][0]: congrats.pop(i, None)
 
                 # выбираем самое приоритетное и добавляем в ответ res
                 order = {
@@ -196,7 +196,7 @@ class AdvisorStat(OracleDB):
                         res['congratulations'] = congrats     
                  
         return res
-#gdljg
+
     def get_data(self, inn, kpp, table_name):
         if kpp==None:  
                        sql_query = """                                                                       
@@ -252,11 +252,11 @@ class AdvisorStat(OracleDB):
                  
                 if a['is_here'] == 1: 
                         current_date = datetime.datetime.today().strftime('%Y.%m.%d')
-                        data['set_query'] = congrat+"= to_date(:cong_date,'yyyy-mm-dd'), " + "update_date = to_date(:current_date,'yyyy-mm-dd')"
+                        data['set_query'] = congrat+"= :cong_date, " + "update_date = to_date(:current_date,'yyyy-mm-dd')"
                         if kpp==None: 
                                 data['where_query'] = 'inn = :inn and kpp is null'     
                                 try:        
-                                     self.update_data_in_table(self.advisor_events_table_name, data, [date, current_date, inn]) 
+                                    self.update_data_in_table(self.advisor_events_table_name, data, [date, current_date, inn]) 
 
                                 except: 
                                         res[resources.RESPONSE_STATUS_FIELD] = 'Error'
@@ -327,12 +327,12 @@ class AdvisorStat(OracleDB):
                     
                     elif event_dict['is_here']==1 and advisor_dict['is_here']==1:
                                                    
-                        try:
+                        #try:
                             res.update(self.generate_res_data(advisor_dict['df_row'], fio, events_row=event_dict['df_row'], event_is_empty=0))
-                        except: 
-                                res[resources.RESPONSE_STATUS_FIELD] = 'Error'
-                                res[resources.RESPONSE_ERROR_FIELD] = 'Внутренняя ошибка. Обработка данных витрины советника и табл. сост.'
-                        else: res['show'] = True
+                        #except: 
+                        #        res[resources.RESPONSE_STATUS_FIELD] = 'Error'
+                        #        res[resources.RESPONSE_ERROR_FIELD] = 'Внутренняя ошибка. Обработка данных витрины советника и табл. сост.'
+                        #else: res['show'] = True
                     else:  
                         res[resources.RESPONSE_STATUS_FIELD] = 'Error'
                         res[resources.RESPONSE_ERROR_FIELD] = 'Внутренняя ошибка. Такого не может быть'

@@ -46,7 +46,7 @@ def update_data_in_events():
                 kpp = req_json.get('kpp', None)
                 if kpp == '': kpp = None
                 congrat = req_json.get('congratulationCode', None)
-                date = req_json.get('date', None)
+                date = req_json.get('celebrationYear', None)
 
     except Exception:
                 errors = traceback.format_exc()
