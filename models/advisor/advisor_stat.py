@@ -85,7 +85,7 @@ class AdvisorStat(OracleDB):
         # блок праздники
       
         if ( data_ful.isnull().birth_lpr_fio[0] == False and  
-             data_ful.birth_lpr_fio[0] == fio and
+             data_ful.birth_lpr_fio[0].lower() == fio.lower() and
              data_ful.isnull().birthday[0] == False and             
              data_ful.birthday[0]<=calc_past_date(data_ful.birthday[0])[0] <= data_ful.birthday[0] + pd.DateOffset(4)
            ):
@@ -193,8 +193,8 @@ class AdvisorStat(OracleDB):
                                                             name_max_order = i
                                                             max_order = order[i]
                         congrats = congrats[name_max_order]
-                        res['congratulations'] = congrats       
-         
+                        res['congratulations'] = congrats     
+                 
         return res
 #gdljg
     def get_data(self, inn, kpp, table_name):
@@ -315,13 +315,15 @@ class AdvisorStat(OracleDB):
                                 res[resources.RESPONSE_STATUS_FIELD] = 'Error'
                                 res[resources.RESPONSE_ERROR_FIELD] = 'Внутренняя ошибка. Обработка данных витрины советника!'
                             else:
-                                try: self.insert_event(inn, kpp)
+                                try: 
+                                    if b: self.insert_event(inn, kpp)
                                 except: 
                                     res[resources.RESPONSE_STATUS_FIELD] = 'Error'
                                     res[resources.RESPONSE_ERROR_FIELD] = 'Внутренняя ошибка. Добавление данных в таблицу событий!'
                                 else: 
                                     res.update(b)
-                                    res['show'] = True
+                                    if b: res['show'] = True
+                                    else: res['show'] = False
                     
                     elif event_dict['is_here']==1 and advisor_dict['is_here']==1:
                                                    
