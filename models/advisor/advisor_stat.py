@@ -162,7 +162,7 @@ class AdvisorStat(OracleDB):
                     'code': 'COMPANY_ANNIVERSARY',
                     'date': adv_sugg.company_anniversary.strftime('%Y-%m-%d'),
                     'celebrationYear': clbr_year,
-                    'fullYearsFromDate' : adv_sugg.client_count_year,
+                    'fullYearsFromDate' : adv_sugg.company_count_year,
                 })
 
         # День отрасли
