@@ -83,7 +83,7 @@ class AdvisorStat(OracleDB):
                             t.block_reason_1, t.block_reason_2, t.block_reason_3, t.block_reason_4,
                             t.block_reason_5, t.block_reason_6, t.block_reason_7, t.block_reason_8,
                             t.same_business_change_value,
-                            t.salary_project, t.business_cards, t.credit, t.depoit, t.acquiring, t.gurantee, t.nso,
+                            t.salary_project, t.business_cards, t.credit, t.depoit, t.acquiring, t.guarantee, t.nso,
                             t.ved, t.sms, t.encashment, t.mobile_banking,
                             t.change_pu_new, t.change_pu_profit,
                             t.themes_appeal_1, t.themes_appeal_2, t.themes_appeal_3
