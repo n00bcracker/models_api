@@ -26,7 +26,7 @@ def get_model_result():
         response.status_code = 200
         return response
     else:
-        resp_data.update(model.get_block_predict(okved))
+        resp_data.update(model.get_predict(okved))
         response = jsonify(resp_data)
         response.status_code = 200
         return response

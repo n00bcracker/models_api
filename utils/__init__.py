@@ -1,1 +1,1 @@
-from utils.utils import check_inn
+from utils.utils import check_inn, check_kpp
