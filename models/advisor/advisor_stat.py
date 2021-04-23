@@ -83,7 +83,7 @@ class AdvisorStat(OracleDB):
                             t.block_reason_1, t.block_reason_2, t.block_reason_3, t.block_reason_4,
                             t.block_reason_5, t.block_reason_6, t.block_reason_7, t.block_reason_8,
                             t.same_business_change_value,
-                            t.salary_project, t.business_cards, t.credit, t.depoit, t.acquiring, t.guarantee, t.nso,
+                            t.salary_project, t.business_cards, t.credit, t.deposit, t.acquiring, t.guarantee, t.nso,
                             t.ved, t.sms, t.encashment, t.mobile_banking,
                             t.change_pu_new, t.change_pu_profit,
                             t.themes_appeal_1, t.themes_appeal_2, t.themes_appeal_3
@@ -231,14 +231,15 @@ class AdvisorStat(OracleDB):
         # Модуль возможных причин обращения
         appeal_themes = list()
         for i in range(1, 4):
-            theme = appeal_themes['themes_appeal_' + str(i)]
+            theme = adv_sugg['themes_appeal_' + str(i)]
             if pd.notnull(theme) and theme >= 1 and theme <= 33:
-                appeal_themes.append(theme)
+                appeal_themes.append(int(theme))
 
         if len(appeal_themes) > 0:
             actual_suggestions['information'] = appeal_themes
 
-        if len(actual_suggestions) == 1 and actual_suggestions.get('sameBusinnessChangeValue') is not None:
+        if len(actual_suggestions) == 0\
+            or (len(actual_suggestions) == 1 and actual_suggestions.get('sameBusinnessChangeValue') is not None):
             actual_suggestions = None
 
         return actual_suggestions
@@ -313,75 +314,4 @@ class AdvisorStat(OracleDB):
                             res['show'] = True
 
         return res
-
-
-
-
-
-
-                
-        if inn != None and lrp_fullname != None and check_inn(inn) and check_kpp(kpp):
-            try: 
-                advisor_dict = self.get_row_block(inn, kpp, self.advisor_tablename)
-                event_dict = self.get_row_block(inn, kpp, self.advisor_events_tablename)
-            except:
-                    res[resources.RESPONSE_STATUS_FIELD] = 'Error'
-                    res[resources.RESPONSE_ERROR_FIELD] = 'Внутренняя ошибка. Ошибка обращения к БД'
-                    res['advisor_events_table_name'] = self.advisor_events_tablename
-            else:
-                if event_dict['is_here']==2 or advisor_dict['is_here']==2: 
-                                                     res[resources.RESPONSE_STATUS_FIELD] = 'Error'
-                                                     res[resources.RESPONSE_ERROR_FIELD] = 'Внутренняя ошибка. Дублирование, None в БД'
-                else:
-                    if   event_dict['is_here']==0 and advisor_dict['is_here']==0: res['show'] = False
-                    elif event_dict['is_here']==1 and advisor_dict['is_here']==0: res['show'] = True
-                    elif event_dict['is_here']==0 and advisor_dict['is_here']==1: 
-                         
-                            
-                            try:
-                                b = self.generate_res_data(advisor_dict['df_row'], lrp_fullname)
-                              
-                            except: 
-                                res[resources.RESPONSE_STATUS_FIELD] = 'Error'
-                                res[resources.RESPONSE_ERROR_FIELD] = 'Внутренняя ошибка. Обработка данных витрины советника!'
-                            else:
-                                try: 
-                                    if b: self.insert_event(inn, kpp)
-                                except: 
-                                    res[resources.RESPONSE_STATUS_FIELD] = 'Error'
-                                    res[resources.RESPONSE_ERROR_FIELD] = 'Внутренняя ошибка. Добавление данных в таблицу событий!'
-                                else: 
-                                    res.update(b)
-                                    if b: res['show'] = True
-                                    else: res['show'] = False
-                    
-                    elif event_dict['is_here']==1 and advisor_dict['is_here']==1:
-                                                   
-                        #try:
-                            res.update(self.generate_res_data(advisor_dict['df_row'], lrp_fullname, events_row=event_dict['df_row'], event_is_empty=0))
-                        #except: 
-                        #        res[resources.RESPONSE_STATUS_FIELD] = 'Error'
-                        #        res[resources.RESPONSE_ERROR_FIELD] = 'Внутренняя ошибка. Обработка данных витрины советника и табл. сост.'
-                        #else: res['show'] = True
-                    else:  
-                        res[resources.RESPONSE_STATUS_FIELD] = 'Error'
-                        res[resources.RESPONSE_ERROR_FIELD] = 'Внутренняя ошибка. Такого не может быть'
-                                                                                             
-        else:
-                 res[resources.RESPONSE_STATUS_FIELD] = 'Error'
-                 res[resources.RESPONSE_ERROR_FIELD] = 'Внешняя ошибка. Некорректный ИНН или КПП или ФИО'
     
-        return res
-
-
-
-
-
-
-
-
-
-
-
-
-
