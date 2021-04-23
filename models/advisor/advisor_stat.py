@@ -76,7 +76,7 @@ class AdvisorStat(OracleDB):
         sql_query = f"""
                         select
                             t.inn, t.kpp,
-                            t.birth_lpr_fio, t.birthday,
+                            t.lpr_fullname, t.birthday,
                             t.industry_name, t.industry_day,
                             t.company_anniversary, t.company_count_year,
                             t.client_anniversary, t.client_count_year,
@@ -145,7 +145,7 @@ class AdvisorStat(OracleDB):
         #Модуль поздравлений
         congratulations= list()
         # День рождения ЛПР
-        if pd.notnull(adv_sugg.birth_lpr_fio) and adv_sugg.birth_lpr_fio.lower() == lpr_fullname.lower():
+        if pd.notnull(adv_sugg.lpr_fullname) and adv_sugg.lpr_fullname.lower() == lpr_fullname.lower():
             days2hday, clbr_year = self.days_to_holiday(adv_sugg.birthday)
             if days2hday >= -3 and days2hday <= 0: # В течение 3х дней после ДР
                 congratulations.append({
