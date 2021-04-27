@@ -6,31 +6,49 @@ import os, signal
 #from flask import Response
 
 
-@app.route('/financial-advisor', methods=['POST'])
+@app.route('/financial-advisor', methods=['GET'])
 def get_advisor_results():
-    resp_data = {#resources.REQUEST_ID_FIELD: None,
-                 #resources.RESPONSE_STATUS_FIELD: None,
-                 #resources.RESPONSE_ERROR_FIELD: None
-                 }            
+    resp_data = dict()
 
     try:
-        req_json = request.get_json()
-        inn = req_json['inn']
-        kpp = req_json.get('kpp', None)
-        if kpp == '':
-            kpp = None
-        lpr_fullname = req_json['fullName']
+        args = request.args
+        organization_id = args['organizationId']
+        person_id = args['personId']
+        module_name = args.get('unit')
                  
     except Exception:
         errors = traceback.format_exc()
-        resp_data[resources.RESPONSE_STATUS_FIELD] = 'Error'
-        resp_data[resources.RESPONSE_ERROR_FIELD] = errors
+        resp_data[resources.RESPONSE_ERROR_FIELD] = 'Отсутствуют необходимые аргументы запроса'
         app.logger.error(errors)
         response = jsonify(resp_data)
         response.status_code = 400
         return response
     else:
-        resp_data.update(model.get_predict(inn, lpr_fullname, kpp=kpp))
+        resp_data.update(model.get_predict(organization_id, person_id, module_name))
+        response = jsonify(resp_data)
+        if resp_data.get(resources.RESPONSE_ERROR_FIELD) is None:
+            response.status_code = 200
+        else:
+            response.status_code = 500
+        return response
+
+@app.route('/financial-advisor/show', methods=['GET'])
+def check_actual_suggestions():
+    resp_data = dict()
+
+    try:
+        args = request.args
+        organization_id = args['organizationId']
+        person_id = args['personId']
+    except Exception:
+        errors = traceback.format_exc()
+        resp_data[resources.RESPONSE_ERROR_FIELD] = 'Отсутствуют необходимые аргументы запроса'
+        app.logger.error(errors)
+        response = jsonify(resp_data)
+        response.status_code = 400
+        return response
+    else:
+        resp_data.update(model.check_actual_suggestions(organization_id, person_id))
         response = jsonify(resp_data)
         if resp_data.get(resources.RESPONSE_ERROR_FIELD) is None:
             response.status_code = 200
@@ -40,29 +58,23 @@ def get_advisor_results():
 
 @app.route('/financial-advisor/congratulations', methods=['POST'])
 def update_data_in_events():
-    resp_data = {#resources.REQUEST_ID_FIELD: None,
-                 #resources.RESPONSE_STATUS_FIELD: None,
-                 #resources.RESPONSE_ERROR_FIELD: None
-                 }
+    resp_data = dict()
     try:
         req_json = request.get_json()
-        inn = req_json['inn']
-        kpp = req_json.get('kpp', None)
-        if kpp == '':
-            kpp = None
+        organizationId = req_json['organizationId']
+        person_id = req_json['personId']
         congr_code = req_json['congratulationCode']
         celebr_year = req_json['celebrationYear']
 
     except Exception:
         errors = traceback.format_exc()
-        resp_data[resources.RESPONSE_STATUS_FIELD] = 'Error'
-        resp_data[resources.RESPONSE_ERROR_FIELD] = errors
+        resp_data[resources.RESPONSE_ERROR_FIELD] = 'Отсутствуют необходимые аргументы запроса'
         app.logger.error(errors)
         response = jsonify(resp_data)
         response.status_code = 400
         return response
     else:
-        resp_data.update(model.process_user_feedback(inn, congr_code, celebr_year, kpp=kpp))
+        resp_data.update(model.process_user_feedback(organizationId, person_id, congr_code, celebr_year))
         response = jsonify(resp_data)
         if resp_data.get(resources.RESPONSE_ERROR_FIELD) is None:
             response.status_code = 200
