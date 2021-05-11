@@ -155,6 +155,9 @@ class AdvisorStat(OracleDB):
             for key in data.keys():
                 prev_user_state_df.loc[0, key.lower()] = data[key]
 
+            prev_user_state_df.loc[0, 'organization_id'] = organization_id
+            prev_user_state_df.loc[0, 'person_id'] = person_id
+
             update_success = self.save_df_in_sql_table(prev_user_state_df, self.user_state_dtype, self.advisor_events_tablename)
         else:
             sql_query = """
