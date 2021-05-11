@@ -94,6 +94,7 @@ class AdvisorStat(OracleDB):
                                 from {self.advisor_user_bday_tablename} t
                                     where 1=1
                                     and t.person_id = :pers_id
+                                    and t.organization_id = :org_id
                         ),
                         
                         advisor_suggs as (
