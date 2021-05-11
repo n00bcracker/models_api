@@ -263,9 +263,9 @@ class AdvisorStat(OracleDB):
                 actual_suggestions['offers'] = offers
 
         # Модуль расчета изменения среднерыночной стоимости бизнеса
-        if module_name is None or module_name == 'sameBusinnessChangeValue':
+        if module_name is None or module_name == 'sameBusinessChangeValue':
             if pd.notnull(adv_sugg.same_business_change_value):
-                actual_suggestions['sameBusinnessChangeValue'] = adv_sugg.same_business_change_value
+                actual_suggestions['sameBusinessChangeValue'] = adv_sugg.same_business_change_value
 
         # Модуль причин возможной блокировки
         if module_name is None or module_name == 'blockingReasons':
@@ -291,7 +291,7 @@ class AdvisorStat(OracleDB):
 
         if len(actual_suggestions) == 0\
             or (module_name is None and len(actual_suggestions) == 1\
-                and actual_suggestions.get('sameBusinnessChangeValue') is not None):
+                and actual_suggestions.get('sameBusinessChangeValue') is not None):
             actual_suggestions = None
 
         return actual_suggestions
