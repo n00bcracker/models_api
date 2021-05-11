@@ -204,7 +204,7 @@ class AdvisorStat(OracleDB):
                         'code': 'COMPANY_ANNIVERSARY',
                         'date': adv_sugg.company_anniversary.strftime('%Y-%m-%d'),
                         'celebrationYear': clbr_year,
-                        'fullYearsFromDate' : adv_sugg.company_count_year,
+                        'fullYearsFromDate' : int(adv_sugg.company_count_year),
                     })
 
             # День отрасли
@@ -226,9 +226,9 @@ class AdvisorStat(OracleDB):
                 if clbr_year != prev_clbr_year and days2hday >= -5 and days2hday <= 5:
                     congratulations.append({
                         'code': 'CLIENT_ANNIVERSARY',
-                        'date': adv_sugg.industry_day.strftime('%Y-%m-%d'),
+                        'date': adv_sugg.client_anniversary.strftime('%Y-%m-%d'),
                         'celebrationYear': clbr_year,
-                        'fullYearsFromDate': adv_sugg.client_count_year,
+                        'fullYearsFromDate': int(adv_sugg.client_count_year),
                     })
 
             if len(congratulations) > 0:
