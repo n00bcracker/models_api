@@ -191,7 +191,7 @@ class AdvisorStat(OracleDB):
                 if clbr_year != prev_clbr_year and days2hday >= -3 and days2hday <= 0: # В течение 3х дней после ДР
                     congratulations.append({
                         'code' : 'BIRTHDAY',
-                        'date' : adv_sugg.birth_day.strftime('%Y-%m-%d'),
+                        'date' : adv_sugg.birth_date.strftime('%Y-%m-%d'),
                         'celebrationYear' : clbr_year,
                     })
 
