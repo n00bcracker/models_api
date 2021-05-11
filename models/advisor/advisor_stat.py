@@ -170,12 +170,10 @@ class AdvisorStat(OracleDB):
 
             values_clause = ', '.join([k + ' = :' + k for k in data.keys()])
             params = data
+            params['org_id'] = organization_id
+            params['pers_id'] = person_id
             sql_query = sql_query.format(tablename=self.advisor_events_tablename, values_clause=values_clause)
-            update_success = self.execute_sql_query(sql_query,
-                                                    params={
-                                                    'org_id' : organization_id,
-                                                    'pers_id': person_id,
-                                                })
+            update_success = self.execute_sql_query(sql_query, params=params)
 
         return update_success
 
