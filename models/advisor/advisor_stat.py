@@ -98,6 +98,7 @@ class AdvisorStat(OracleDB):
                                     where 1=1
                                     and t.person_id = :pers_id
                                     and t.organization_id = :org_id
+                                    and t.date_upload = (select max(date_upload) from {self.advisor_user_bday_tablename})
                         ),
                         
                         advisor_suggs as (
@@ -116,6 +117,7 @@ class AdvisorStat(OracleDB):
                                 from {self.advisor_tablename} t
                                         where 1=1
                                         and t.organization_id = :org_id
+                                        and t.ddate = (select max(ddate) from {self.advisor_tablename})
                         )
                         
                         select
