@@ -6,7 +6,7 @@ import os, signal
 #from flask import Response
 
 
-@app.route('/financial-advisor', methods=['GET'])
+@app.route('/', methods=['GET'])
 def get_advisor_results():
     resp_data = dict()
 
@@ -32,7 +32,7 @@ def get_advisor_results():
             response.status_code = 500
         return response
 
-@app.route('/financial-advisor/show', methods=['GET'])
+@app.route('/show', methods=['GET'])
 def check_actual_suggestions():
     resp_data = dict()
 
@@ -56,7 +56,7 @@ def check_actual_suggestions():
             response.status_code = 500
         return response
 
-@app.route('/financial-advisor/congratulations', methods=['POST'])
+@app.route('/congratulations', methods=['POST'])
 def update_data_in_events():
     resp_data = dict()
     try:
