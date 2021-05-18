@@ -83,7 +83,6 @@ def model_fit():
             response.status_code = 200
             return response
 
-
 @app.route('/reboot', methods=['GET'])
 def reboot_gunicorn():
     resp_data = {

@@ -78,8 +78,6 @@ def model_fit():
                 resp_data[resources.RESPONSE_ERROR_FIELD] = job.exc_info
             elif job_status == 'finished':
                 resp_data.update(job.result)
-                if resp_data[resources.RESPONSE_STATUS_FIELD] == 'Ok':
-                    requests.get('http://entry_compliance:3310/reboot')
 
             response = jsonify(resp_data)
             response.status_code = 200

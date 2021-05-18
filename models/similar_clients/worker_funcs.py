@@ -7,5 +7,5 @@ def fit_task():
     model = SimilarClients()
     res = model.fit()
     if res[resources.RESPONSE_STATUS_FIELD] == 'Ok':
-        requests.get('http://similar_clients:3320/reboot')
+        requests.get('http://similar_clients/reboot')
     return res

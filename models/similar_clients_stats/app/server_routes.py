@@ -13,7 +13,7 @@ def get_similar_clients(request_id, inn, kpp=None):
         'kpp': kpp,
     }
     with requests.session() as session:
-        resp = session.post('http://similar_clients:3320/', json=req_data)
+        resp = session.post('http://similar_clients/', json=req_data)
         return resp
 
 
