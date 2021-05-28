@@ -109,7 +109,7 @@ class AdvisorStat(OracleDB):
                             t.client_anniversary, t.client_count_year,
                             t.block_reason_1, t.block_reason_2, t.block_reason_3, t.block_reason_4,
                             t.block_reason_5, t.block_reason_6, t.block_reason_7, t.block_reason_8,
-                            t.same_business_change_value,
+                            t.business_okved_cost, t.business_okved_cost_incr,
                             t.salary_project, t.business_cards, t.credit, t.deposit, t.acquiring, t.guarantee, t.nso,
                             t.ved, t.sms, t.encashment, t.mobile_banking,
                             t.change_pu_new, t.change_pu_profit,
