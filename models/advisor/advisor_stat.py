@@ -272,8 +272,9 @@ class AdvisorStat(OracleDB):
         if module_name is None or module_name == 'businessEvaluation':
             business_values = dict()
 
-            if pd.notnull(adv_sugg.same_business_change_value):
-                business_values['sameBusinessChangeValue'] = adv_sugg.same_business_change_value
+            if pd.notnull(adv_sugg.business_okved_cost):
+                business_values['sameOkvedValue'] = int(adv_sugg.business_okved_cost)
+                business_values['sameOkvedValueIncr'] = True if adv_sugg.business_okved_cost_incr == 1 else False
 
             if len(business_values) > 0:
                 actual_suggestions['businessEvaluation'] = business_values
