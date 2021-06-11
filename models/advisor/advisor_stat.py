@@ -260,7 +260,7 @@ class AdvisorStat(OracleDB):
             if pd.notnull(adv_sugg.change_pu_new) and self.check_tariff_name(adv_sugg.change_pu_new):
                 tariff_change = {
                     'code': adv_sugg.change_pu_new,
-                    'profit': adv_sugg.change_pu_profit,
+                    'profit': int(adv_sugg.change_pu_profit),
                 }
 
                 offers['tariffChange'] = tariff_change
