@@ -1,4 +1,3 @@
-
 def check_inn(inn):  # проверка корректности ИНН по контрольным суммам
     inn = str(inn)
     digits = [int(x) for x in inn]
@@ -19,5 +18,14 @@ def check_inn(inn):  # проверка корректности ИНН по к�
             return True
         else:
             return False
+    else:
+        return False
+
+
+def check_kpp(kpp):
+    kpp = str(kpp)
+    digits = [int(x) for x in kpp]
+    if len(digits) == 9:
+        return True
     else:
         return False
