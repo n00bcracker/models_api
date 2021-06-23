@@ -2,11 +2,11 @@ import os
 from config import METAFILES_DIR
 
 # Названия таблиц
-FULL_MARKET_IE_TABLE = os.getenv('FULL_MARKET_IE_TABLE') or None
-FULL_MARKET_COMP_TABLE = os.getenv('FULL_MARKET_COMP_TABLE') or None
+FULL_MARKET_IE_TABLE = os.getenv('SIMCL_MARKET_IE_TABLE') or None
+FULL_MARKET_COMP_TABLE = os.getenv('SIMCL_MARKET_COMP_TABLE') or None
 
-CLIENTS_IE_TABLE = os.getenv('CLIENTS_IE_TABLE') or None
-CLIENTS_COMP_TABLE = os.getenv('CLIENTS_COMP_TABLE') or None
+CLIENTS_IE_TABLE = os.getenv('SIMCL_CLIENTS_IE_TABLE') or None
+CLIENTS_COMP_TABLE = os.getenv('SIMCL_CLIENTS_COMP_TABLE') or None
 
 SIMCOMP_METADIR = os.path.join(METAFILES_DIR, 'similar_clients')
 
@@ -21,7 +21,7 @@ COMP_TRANSFORMER_FILENAME = os.path.join(SIMCOMP_METADIR, 'comp_transforming.job
 COMP_NN_MODELS_FILENAME = os.path.join(SIMCOMP_METADIR, 'comp_knn_models.joblib.gz')
 COMP_CLIENTS_IDS_FILENAME = os.path.join(SIMCOMP_METADIR, 'comp_client_okved_idxs.pkl.gz')
 
-# Названия использующихся стобцов таблицы по категориям
+# Названия использующихся столбцов таблицы по категориям
 COMP_ID_COLS = ['client_key', 'inn', 'kpp', 'okved_code',]
 COMP_CONT_FEATURES_COLS = ['city_population', 'charter_capital', 'revenue_all', 'workers_range', 'post_office_latitude',
                             'post_office_longitude', 'si_coowner_egrul_cnt', ]

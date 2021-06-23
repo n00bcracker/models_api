@@ -7,7 +7,7 @@ def fit_task():
     model = EntryCompliance()
     res = model.fit()
     if res[resources.RESPONSE_STATUS_FIELD] == 'Ok':
-        requests.get('http://similar_clients/reboot')
+        requests.get('http://entry_compliance/reboot')
     return
 
 def predict_all_task():
