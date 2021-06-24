@@ -113,7 +113,8 @@ class AdvisorStat(OracleDB):
                             t.salary_project, t.business_cards, t.credit, t.deposit, t.acquiring, t.guarantee, t.nso,
                             t.ved, t.sms, t.encashment, t.mobile_banking,
                             t.change_pu_new, t.change_pu_profit,
-                            t.themes_appeal_1, t.themes_appeal_2, t.themes_appeal_3
+                            t.themes_appeal_1, t.themes_appeal_2, t.themes_appeal_3,
+                            t.churn_intention
                                 from {self.advisor_tablename} t
                                         where 1=1
                                         and t.organization_id = :org_id
@@ -300,6 +301,16 @@ class AdvisorStat(OracleDB):
 
             if len(appeal_themes) > 0:
                 actual_suggestions['information'] = appeal_themes
+
+        # Модуль с выяснением причин оттока
+        if module_name is None or module_name == 'churn':
+            churn_info = dict()
+
+            if pd.notnull(adv_sugg.churn_intention):
+                churn_info['haveReason'] = True if adv_sugg.churn_intention == 1 else False
+
+            if len(churn_info) > 0:
+                actual_suggestions['churn'] = churn_info
 
         if len(actual_suggestions) == 0 \
                 or (module_name is None and len(actual_suggestions) == 1
