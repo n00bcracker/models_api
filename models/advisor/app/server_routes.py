@@ -81,3 +81,28 @@ def update_data_in_events():
         else:
             response.status_code = 500
         return response
+
+@app.route('/invite', methods=['GET'])
+def show_counterparties():
+    resp_data = dict()
+
+    try:
+        args = request.args
+        organization_id = args['organizationId']
+        person_id = args['personId']
+
+    except Exception:
+        errors = traceback.format_exc()
+        resp_data[resources.RESPONSE_ERROR_FIELD] = 'Отсутствуют необходимые аргументы запроса'
+        app.logger.error(errors)
+        response = jsonify(resp_data)
+        response.status_code = 400
+        return response
+    else:
+        resp_data.update(model.get_suitable_counerparties(organization_id))
+        response = jsonify(resp_data)
+        if resp_data.get(resources.RESPONSE_ERROR_FIELD) is None:
+            response.status_code = 200
+        else:
+            response.status_code = 500
+        return response

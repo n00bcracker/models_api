@@ -1,4 +1,5 @@
 from models.advisor.config import ADVISOR_TABLE, ADVISOR_EVENTS_TABLE, ADVISOR_USER_BDAY_TABLE
+from models.advisor.config import ADVISOR_COUNTERPARTIES_TABLE
 from models.advisor.config import CONGRATULATION_CODES, BLOCKING_REASONS, PRODUCT_OFFERS, TARIFFS
 from utils import resources
 from common import OracleDB
@@ -13,6 +14,7 @@ class AdvisorStat(OracleDB):
     advisor_tablename = ADVISOR_TABLE
     advisor_events_tablename = ADVISOR_EVENTS_TABLE
     advisor_user_bday_tablename = ADVISOR_USER_BDAY_TABLE
+    advisor_counterparties_tablename = ADVISOR_COUNTERPARTIES_TABLE
 
     user_state_dtype = {
         'organization_id': VARCHAR(200),
@@ -155,6 +157,18 @@ class AdvisorStat(OracleDB):
                                                 'pers_id': person_id,
                                             })
         return user_state_df
+
+    def get_counterparties(self, organization_id):
+        sql_query = f"""
+                        select
+                            t.counterparty_inn,
+                            t.counterparty_kpp,
+                            t.counterparty_name,
+                            t.ac
+                                from {self.advisor_counterparties_tablename} t
+                                    where 1=1
+                                    and t.organization_id = :org_id
+                            """
 
     def update_user_state(self, prev_user_state_df, organization_id, person_id, data):
         if prev_user_state_df.shape[0] == 0:
@@ -319,6 +333,24 @@ class AdvisorStat(OracleDB):
 
         return actual_suggestions
 
+    def suitable_counerparties_transform(self, adv_cntrprts_df):
+        cntrprts_list = list()
+
+        adv_cntrprts_df = adv_cntrprts_df.sort_values('ac').drop(columns=['ac',])
+        for i in range(adv_cntrprts_df.shape[0]):
+            cntrprt_rec = adv_cntrprts_df.iloc[i]
+
+            cntrprt = dict()
+            cntrprt['inn'] = cntrprt_rec.counterparty_inn
+            cntrprt['name'] = cntrprt_rec.counterparty_name
+            if pd.notnull(cntrprt_rec.counterparty_kpp):
+                cntrprt['kpp'] = cntrprt_rec.counterparty_kpp
+
+            cntrprts_list.append(cntrprt)
+
+        suit_cntrprts = {'counterparties' : cntrprts_list}
+        return suit_cntrprts
+
     def process_user_feedback(self, organization_id, person_id, congr_code, celebr_year):
         res = dict()
         if self.check_congr_code(congr_code):
@@ -335,25 +367,25 @@ class AdvisorStat(OracleDB):
 
         return res
 
-    def check_actual_suggestions(self, organization_id, person_id):
-        res = dict()
-
-        adv_sugg_df = self.get_advisor_suggestions(organization_id, person_id)
-        if adv_sugg_df is None:
-            res[resources.RESPONSE_ERROR_FIELD] = 'Ошибка исполнения SQL-запроса'
-        elif adv_sugg_df.shape[0] == 1:  # Найдены предложения Советника
-            user_state_df = self.get_user_state(organization_id, person_id)
-            if user_state_df is None:
-                res[resources.RESPONSE_ERROR_FIELD] = 'Ошибка исполнения SQL-запроса'
-            else:  # Проверка актуальных предложений
-                act_sugg = self.actual_suggestions_transform(adv_sugg_df, user_state_df)
-                if act_sugg is not None:
-                    res['actualSuggestions'] = True
-                else:
-                    res['actualSuggestions'] = False
-        else:
-            res['actualSuggestions'] = False
-        return res
+    # def check_actual_suggestions(self, organization_id, person_id):
+    #     res = dict()
+    #
+    #     adv_sugg_df = self.get_advisor_suggestions(organization_id, person_id)
+    #     if adv_sugg_df is None:
+    #         res[resources.RESPONSE_ERROR_FIELD] = 'Ошибка исполнения SQL-запроса'
+    #     elif adv_sugg_df.shape[0] == 1:  # Найдены предложения Советника
+    #         user_state_df = self.get_user_state(organization_id, person_id)
+    #         if user_state_df is None:
+    #             res[resources.RESPONSE_ERROR_FIELD] = 'Ошибка исполнения SQL-запроса'
+    #         else:  # Проверка актуальных предложений
+    #             act_sugg = self.actual_suggestions_transform(adv_sugg_df, user_state_df)
+    #             if act_sugg is not None:
+    #                 res['actualSuggestions'] = True
+    #             else:
+    #                 res['actualSuggestions'] = False
+    #     else:
+    #         res['actualSuggestions'] = False
+    #     return res
 
     def get_predict(self, organization_id, person_id, module_name=None):
         res = dict()
@@ -374,3 +406,13 @@ class AdvisorStat(OracleDB):
                     res.update(act_sugg)
 
         return res
+
+    def get_suitable_counerparties(self, organization_id):
+        res = dict()
+
+        adv_cntrprts_df = self.get_counterparties(organization_id)
+        if adv_cntrprts_df is None:
+            res[resources.RESPONSE_ERROR_FIELD] = 'Ошибка исполнения SQL-запроса'
+        else: # Обработка полученного списка контрагентов
+            suit_cntrparts = self.suitable_counerparties_transform(adv_cntrprts_df)
+            res.update(suit_cntrparts)
