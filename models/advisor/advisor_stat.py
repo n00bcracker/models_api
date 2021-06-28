@@ -169,6 +169,12 @@ class AdvisorStat(OracleDB):
                                     where 1=1
                                     and t.organization_id = :org_id
                             """
+        
+        adv_cntrprts_df = self.read_sql_query(sql_query,
+                                            params={
+                                                'org_id': organization_id,
+                                            })
+        return adv_cntrprts_df
 
     def update_user_state(self, prev_user_state_df, organization_id, person_id, data):
         if prev_user_state_df.shape[0] == 0:
@@ -416,3 +422,5 @@ class AdvisorStat(OracleDB):
         else: # Обработка полученного списка контрагентов
             suit_cntrparts = self.suitable_counerparties_transform(adv_cntrprts_df)
             res.update(suit_cntrparts)
+            
+        return res
