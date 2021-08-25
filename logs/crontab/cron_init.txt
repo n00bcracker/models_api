@@ -1,0 +1,1 @@
+* * * * * cd /home/zaspa_ay/models_api/logs/crontab && ./logs.sh
