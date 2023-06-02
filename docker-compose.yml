@@ -1,0 +1,243 @@
+version: '3.4'
+
+x-common-variables: &common-variables
+  ORACLE_USER:
+  ORACLE_PASSWORD:
+  ORACLE_TNS: 
+  NLS_LANG: AMERICAN_AMERICA.AL32UTF8
+
+x-entry-compliance-variables: &entry-compliance-variables
+  ENTCOMPL_MARKET_IE_TABLE: si_complieprog_final
+  ENTCOMPL_MARKET_COMP_TABLE: si_complprog_final
+  ENTCOMPL_BLOCKED_IE_TABLE: si_complietrai_final
+  ENTCOMPL_BLOCKED_COMP_TABLE: si_compltrai_final
+  ENTCOMPL_IE_TABLE: si_ie_compl_prognoz
+  ENTCOMPL_COMP_TABLE: si_ooo_compl_prognoz
+
+x-similar-clients-variables: &similar-clients-variables
+  SIMCL_MARKET_IE_TABLE: si_nn_ie_test
+  SIMCL_MARKET_COMP_TABLE: si_nn_test
+  SIMCL_CLIENTS_IE_TABLE: si_nn_ie_train
+  SIMCL_CLIENTS_COMP_TABLE: si_nn_train
+
+x-clients-info-variables: &clients-info-variables
+  CLIENTS_PORTFOLIO_TABLE: leo_dinam_portf
+
+x-orgnz-info-variables: &orgnz-info-variables
+  SPARK_ORGANIZATIONS_INFO: leo_spark_dop_info
+
+x-otrasly-stat-variables: &otrasly-stat-variables
+  OTRASLI_TABLE: si_otrasli_stat
+
+x-advisor-variables: &advisor-variables
+  ADVISOR_TABLE: leo_sovetnik_bp
+  ADVISOR_USER_BDAY_TABLE: leo_birth_sovetnik_bp
+  ADVISOR_EVENTS_TABLE: si_sovetnik_flag
+  ADVISOR_COUNTERPARTIES_TABLE: leo_sovetnik_bp_contr
+
+
+services:
+  redis:
+    image: redis:latest
+    container_name: ml_models-redis
+
+  rq_worker:
+    restart: unless-stopped
+    image: ml_models:latest
+    container_name: ml_models-worker
+    environment:
+      <<: *common-variables
+      <<: *entry-compliance-variables
+      <<: *similar-clients-variables
+      MODEL_TYPE: ml_worker
+    volumes:
+      - ./tnsnames.ora:/usr/lib/oracle/19.5/client64/lib/network/admin/tnsnames.ora:ro
+      - /opt/persikub/meta:/home/ml_model/models/meta
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1m"
+        max-file: "10"
+
+
+  revenue:
+    restart: unless-stopped
+    image: ml_models:latest
+    container_name: ml_models-revenue
+    environment:
+      <<: *common-variables
+      MODEL_TYPE: revenue
+      SERVICE_PORT: 3300
+      GUNICORN_TIMEOUT: 60
+      SERVICE_WORKERS: 3
+      SERVICE_THREADS: 3
+      REVENUE_SPARK_TABLE: ev_prognoz_viruchka_all
+    volumes:
+      - ./tnsnames.ora:/usr/lib/oracle/19.5/client64/lib/network/admin/tnsnames.ora:ro
+    ports:
+      - '3300:3300'
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1m"
+        max-file: "10"
+
+  entry_compliance:
+    restart: unless-stopped
+    image: ml_models:latest
+    container_name: ml_models-entry_compliance
+    environment:
+      <<: *common-variables
+      <<: *entry-compliance-variables
+      MODEL_TYPE: entry_compliance
+      SERVICE_PORT: 80
+      GUNICORN_TIMEOUT: 60
+      SERVICE_WORKERS: 3
+      SERVICE_THREADS: 3
+    volumes:
+      - ./tnsnames.ora:/usr/lib/oracle/19.5/client64/lib/network/admin/tnsnames.ora:ro
+      - /opt/persikub/meta:/home/ml_model/models/meta
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1m"
+        max-file: "10"
+
+  similar_clients:
+    restart: unless-stopped
+    image: ml_models:latest
+    container_name: ml_models-similar_clients
+    environment:
+      <<: *common-variables
+      <<: *similar-clients-variables
+      MODEL_TYPE: similar_clients
+      SERVICE_PORT: 80
+      GUNICORN_TIMEOUT: 60
+      SERVICE_WORKERS: 3
+      SERVICE_THREADS: 3
+    volumes:
+      - ./tnsnames.ora:/usr/lib/oracle/19.5/client64/lib/network/admin/tnsnames.ora:ro
+      - /opt/persikub/meta:/home/ml_model/models/meta
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1m"
+        max-file: "10"
+
+  similar_clients_stats:
+    restart: unless-stopped
+    image: ml_models:latest
+    container_name: ml_models-similar_clients_stats
+    environment:
+      <<: *common-variables
+      <<: *clients-info-variables
+      MODEL_TYPE: similar_clients_stats
+      SERVICE_PORT: 80
+      GUNICORN_TIMEOUT: 60
+      SERVICE_WORKERS: 3
+      SERVICE_THREADS: 3
+    volumes:
+      - ./tnsnames.ora:/usr/lib/oracle/19.5/client64/lib/network/admin/tnsnames.ora:ro
+      - /opt/persikub/meta:/home/ml_model/models/meta
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1m"
+        max-file: "10"
+
+  group_revenue:
+    restart: unless-stopped
+    image: ml_models:latest
+    container_name: ml_models-group_revenue
+    environment:
+      <<: *common-variables
+      <<: *orgnz-info-variables
+      MODEL_TYPE: group_revenue
+      SERVICE_PORT: 3330
+      GUNICORN_TIMEOUT: 60
+      SERVICE_WORKERS: 3
+      SERVICE_THREADS: 3
+    volumes:
+      - ./tnsnames.ora:/usr/lib/oracle/19.5/client64/lib/network/admin/tnsnames.ora:ro
+    ports:
+      - '3330:3330'
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1m"
+        max-file: "10"
+
+  otrasly_stat:
+    restart: unless-stopped
+    image: ml_models:latest
+    container_name: ml_models-otrasly_stat
+    environment:
+      <<: *common-variables
+      <<: *otrasly-stat-variables
+      MODEL_TYPE: otrasly_stat
+      SERVICE_PORT: 3340
+      GUNICORN_TIMEOUT: 60
+      SERVICE_WORKERS: 3
+      SERVICE_THREADS: 3
+    volumes:
+      - ./tnsnames.ora:/usr/lib/oracle/19.5/client64/lib/network/admin/tnsnames.ora:ro
+    ports:
+      - '3340:3340'
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1m"
+        max-file: "10"
+
+  advisor:
+    restart: unless-stopped
+    image: ml_models:latest
+    container_name: ml_models-advisor
+    environment:
+      <<: *common-variables
+      <<: *advisor-variables
+      MODEL_TYPE: advisor
+      SERVICE_PORT: 80
+      GUNICORN_TIMEOUT: 60
+      SERVICE_WORKERS: 3
+      SERVICE_THREADS: 3
+    volumes:
+      - ./tnsnames.ora:/usr/lib/oracle/19.5/client64/lib/network/admin/tnsnames.ora:ro
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1m"
+        max-file: "10"
+
+  web_server:
+    restart: unless-stopped
+    image: nginx:latest
+    container_name: models_api-nginx
+    volumes:
+      - ./static:/usr/share/nginx/html:ro
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./certs:/etc/nginx/certs:ro
+      - ./api_htpasswd:/etc/nginx/htpasswd
+    ports:
+      - 777:777
+#      - 443:443
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1m"
+        max-file: "10"
+
+  nginx_ldap:
+    restart: unless-stopped
+    image: nginx-ldap-auth-daemon
+    container_name: models_api-nginx_ldap
+    environment:
+      NGINXLDAP_LDAP_URI:
+      NGINXLDAP_LDAP_BASE_DN:
+      NGINXLDAP_LDAP_BIND_DN:
+      NGINXLDAP_LDAP_BIND_PASSWORD:
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1m"
+        max-file: "10"
