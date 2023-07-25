@@ -1,7 +1,7 @@
 scikit-learn==0.24.1
 Cython==0.29.22
 joblib==1.2.0
-certifi==2020.12.5
+certifi==2023.7.22
 chardet==4.0.0
 cx-Oracle==8.1.0
 decorator==5.0.6
