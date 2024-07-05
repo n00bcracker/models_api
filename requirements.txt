@@ -18,7 +18,7 @@ requests==2.32.2
 schedule==1.1.0
 xgboost==1.4.0
 SQLAlchemy==1.4.7
-sqlparse==0.4.4
+sqlparse==0.5.0
 urllib3==1.26.19
 rq==1.8.1
 redis==3.5.3
